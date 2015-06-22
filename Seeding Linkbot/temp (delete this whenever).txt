@@ -1,0 +1,43 @@
+
+/* servos, motors, and positions here
+
+notes:
+	* basket arm is the motor
+	* the word "init" means this is the initial position that fits in base
+	* the word "start" means we will go to this before jumping
+*/
+#define BASKET_ARM 2
+
+#define TRIBBLE_CLAW 2
+#define TRIBBLE_CLAW_CLOSED 530
+#define TRIBBLE_CLAW_OPEN 2000
+
+#define TRIBBLE_ARM 3
+#define TRIBBLE_ARM_INIT 500
+#define TRIBBLE_ARM_DOWN 1606
+#define TRIBBLE_ARM_UP 300
+
+
+#define BLOCK_ARM 0
+#define BLOCK_ARM_INIT 1000
+#define BLOCK_ARM_BACK 600
+#define BLOCK_ARM_OUT 1600
+
+#define BLOCK_CLAW 1
+#define BLOCK_CLAW_CLOSED 802
+#define BLOCK_CLAW_OPEN 1300
+
+// in mill
+#define INIT_WAIT 2000
+
+// initialize arms and servos
+void init()
+{
+	set_servo_position(TRIBBLE_CLAW, TRIBBLE_CLAW_CLOSED);
+	set_servo_position(BLOCK_ARM, BLOCK_ARM_INIT);
+	set_servo_position(TRIBBLE_ARM, TRIBBLE_ARM_INIT);
+	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_OPEN);
+	msleep( INIT_WAIT );
+	// deal with the motor position by hand please.
+	
+}
