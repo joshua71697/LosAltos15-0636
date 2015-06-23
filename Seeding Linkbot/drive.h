@@ -8,45 +8,34 @@
 #define MOT_LEFT 0
 #define MOT_RIGHT 3
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459//yea, get rekt
-#define SPD 1000
-#define SPDl 950.
-#define SPDr 950.
-#define PWRr 74//using these when in attack setup
-#define PWRl 80//the upper one should always be at 80
-#define HSPDl (int)(PWRl/4)//used for line squareups
-#define HSPDr (int)(PWRr/4)
-#define rdistmult (SPDr/SPDl)
-#define DIST_CORR 0.95//make it move the right distance
-#define TURN_CONST 0.83//make it turn properly
-#define DtoT 85//distace to time-->should be how long (ms) it takes to move 1 in
+#define HSPDl 20//used for line squareups
+#define HSPDr 18
+#define PID_CONST .4//how much the motor speeds change based off how far off each motor is
+#define END_THRESHOLD 460.//at what point the "end" starts-->460 is 1/2 turn (~4 inches for the standard wheels)
+#define END_SCALE .4//how much the motor slows down at the end (=final speed)
+//if you don't want it to slow down at the end, set END_THRESHOLD to 0. or END_SCALE to 1.
 
 #define ks 15//distance from one wheel to another in cm
 #define wheeldiameter 6//this is in cm
 
-#define CMtoBEMF (921/wheeldiameter/PI) //921 is how many backemf ticks there are in a full wheel, take the number of units per rotation, divide by circumference
+#define CMtoBEMF (921/wheeldiameter/PI) //number of units per rotation divided by circumference
 #define INtoCM 2.5
 #define DEGtoRAD PI/180//convert from degrees to radians
 
 #define LBUMP digital(14)
 #define RBUMP digital(15) //left/right back bump sensors (used for square_back())
 
-
 #define drive_off() off(MOT_RIGHT) ;off(MOT_LEFT)
-#define drive(mL,mR); {mav(MOT_LEFT,(mL)*10);mav(MOT_RIGHT,(mR)*10);}
-
-#define TIME_TURN_POWER 80
 
 #define LLIGHT analog(15)
 #define RLIGHT analog(10)
 #define BLACK 750
 
-#define cmpc clear_motor_position_counter//cause it's just easier...
-
 void back(float distance, int power);//function declarations
 void forward(float distance, int power);//
 void right(float degrees, float radius, int power);//
 void left(float degrees, float radius, int power);//
-void drive_pid(float l_ticks, float r_ticks, float max_pwr);//
+void drive(float l_ticks, float r_ticks, float max_pwr);//
 
 void square_back()
 {
@@ -249,7 +238,7 @@ void test_driving()
 	}
 	else//turns
 	{
-		display_prinf(0,1,"input angle");
+		display_printf(0,1,"input angle");
 		float degrees=input_float(0,2);
 		display_printf(0,3,"input radius");
 		float radius=input_float(0,4);
@@ -280,7 +269,7 @@ void test_driving()
 	}//after this, will exit testing by reaching end of function
 	else//c
 	{
-		println("I told you not to press that button...");
+		printf("I told you not to press that button...\n");
 		msleep(1000);
 		brick();//huehuehuehue
 	}
@@ -306,7 +295,7 @@ void forward(float distance, int power)//distance in inches, power on [1,100]
 		power=100;//so go at max power
 	float r_dist=distance*INtoCM*CMtoBEMF*R_DIST_CONST;//total backEMF counts it needs to go
 	float l_dist=distance*INtoCM*CMtoBEMF*L_DIST_CONST;//
-	drive_pid(l_dist, r_dist, (float)(power));
+	drive(l_dist, r_dist, (float)(power));
 }
 
 void back(float distance, int power)//same params as forward
@@ -327,7 +316,7 @@ void back(float distance, int power)//same params as forward
 		power=100;//so go at max power
 	float r_dist=distance*INtoCM*CMtoBEMF*R_DIST_CONST;//total backEMF counts it needs to go
 	float l_dist=distance*INtoCM*CMtoBEMF*L_DIST_CONST;//
-	drive_pid(-l_dist, -r_dist, (float)(power));//negative cause it's going backwards
+	drive(-l_dist, -r_dist, (float)(power));//negative cause it's going backwards
 }
 
 void right(float degrees, float radius, int power)//radius in inches, power on [1,100]
@@ -356,7 +345,7 @@ void right(float degrees, float radius, int power)//radius in inches, power on [
 		r_dist=-r_dist;//make them negative
 		l_dist=-l_dist;//so it goes backwards
 	}
-	drive_pid(l_dist, r_dist, (float)(power));
+	drive(l_dist, r_dist, (float)(power));
 }
 	
 void left(float degrees, float radius, int power)//same params as right
@@ -385,14 +374,10 @@ void left(float degrees, float radius, int power)//same params as right
 		r_dist=-r_dist;//make it negative
 		l_dist=-l_dist;//so it goes backwards
 	}
-	drive_pid(l_dist, r_dist, (float)(power));
+	drive(l_dist, r_dist, (float)(power));
 }
 
-#define PID_CONST .4//how much the motor speeds change based off how far off each motor is
-#define END_THRESHOLD 460.//at what point the "end" starts-->460 is 1/2 turn (~4 inches for the standard wheels)
-#define END_SCALE .4//how much the motor slows down at the end (=final speed)
-//if you don't want it to slow down at the end, set END_THRESHOLD to 0. or END_SCALE to 1.
-void drive_pid(float l_ticks, float r_ticks, float max_pwr)//ticks each motor has to travel (+ or -), power of the fast motor (+)
+void drive(float l_ticks, float r_ticks, float max_pwr)//ticks each motor has to travel (+ or -), power of the fast motor (+)
 {//NOTE: You should probably never call this directly--it should only be called through forward/back/left/right
 	drive_off();//make sure both motors are off from the start--just to be safe
 	if(max_pwr==0||(r_ticks==0&&l_ticks==0))//don't move or move at 0 speed
