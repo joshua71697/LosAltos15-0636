@@ -9,6 +9,29 @@
 #define cmpc clear_motor_position_counter
 #define light_s() analog10(sensor)//this is used in lightstart
 
+//motors and servos
+#define BLOCK_CLAW 0
+#define BC_OPEN 150
+#define BC_CLOSE 1000
+#define BC_START 1400
+#define BLOCK_ARM 1
+#define BA_START 300
+#define BA_DOWN 1900
+#define BA_UP 650
+#define TRIBBLE_CLAW 2
+#define TC_OPEN 1500
+#define TC_CLOSE 300
+#define TRIBBLE_ARM 3
+#define TA_UP 450
+#define TA_DOWN 1600
+#define TA_JUMP 1000//position to get over the pipe (slightly raised)
+#define BASKET 1//motor
+#define BASKET_DOWN 0
+#define BASKET_START -80//just above the block arm
+#define BASKET_UP -250
+
+void move_basket(int target);
+
 //UTILITY
 float sign(float input)//returns 1 for positive, 0 for 0, -1 for negative
 {
@@ -24,6 +47,29 @@ float my_abs(float input)//because apparently kipr broke abs...
 		return -input;
 	return input;
 }
+void change_b_button(int digit)//makes the b button the right digit-->only really useful for input_float and input_int
+{//asdkjf'kfskfhfaksjdghsdkfljafhaelikfdsncxz7asdlkjkhgre
+	if(digit==0)
+		set_b_button_text("0");
+	else if(digit==1)
+		set_b_button_text("1");
+	else if(digit==2)
+		set_b_button_text("2");
+	else if(digit==3)
+		set_b_button_text("3");
+	else if(digit==4)
+		set_b_button_text("4");
+	else if(digit==5)
+		set_b_button_text("5");
+	else if(digit==6)
+		set_b_button_text("6");
+	else if(digit==7)
+		set_b_button_text("7");
+	else if(digit==8)
+		set_b_button_text("8");
+	else//9
+		set_b_button_text("9");
+}
 float input_float(int x, int y)//x and y are where the display_printf starts
 {
 	int digits=0;//how many digits have been inputted
@@ -38,7 +84,7 @@ float input_float(int x, int y)//x and y are where the display_printf starts
 	set_z_button_text("enter");//done with input
 	while(1)
 	{
-		set_b_button_text((char*)(curr_digit));//put in current selection
+		change_b_button(curr_digit);//I have to do this the hard way because there's no good way to convert between ints and strings...
 		WAIT(a_button()||b_button()||c_button()||x_button()||y_button()||z_button());
 		if(a_button())
 			curr_digit--;//I'll sanitize the result at the end of the loop
@@ -99,6 +145,7 @@ float input_float(int x, int y)//x and y are where the display_printf starts
 			if(digits>0)//has put in a number-->if not, can't exit, so will ignore button tap
 				break;//exit the loop-->get to the return
 		}
+		curr_digit+=10;//will make it positive, if was already positive, will deal with that in the next step
 		curr_digit=curr_digit%10;//this will get in in the range of 0-9
 		WAIT(!(a_button()||b_button()||c_button()||x_button()||y_button()||z_button()));
 		msleep(50);
@@ -118,7 +165,7 @@ int input_int(int x, int y)//pretty much the same as input_float...
 	set_z_button_text("enter");//done with input
 	while(1)
 	{
-		set_b_button_text((char*)(curr_digit));//put in current selection
+		change_b_button(curr_digit);//I have to do this the hard way because there's no good way to convert between ints and strings...
 		WAIT(a_button()||b_button()||c_button()||x_button()||z_button());
 		if(a_button())
 			curr_digit--;//I'll sanitize the result at the end of the loop
@@ -145,6 +192,7 @@ int input_int(int x, int y)//pretty much the same as input_float...
 			if(digits>0)//has put in a number-->if not, can't exit, so will ignore button tap
 				break;//exit the loop-->get to the return
 		}
+		curr_digit+=10;//makes it positive; if was already positive, will be undone in the next step
 		curr_digit=curr_digit%10;//this will get in in the range of 0-9
 		WAIT(!(a_button()||b_button()||c_button()||x_button()||z_button()));
 		msleep(50);
@@ -231,6 +279,38 @@ void wait_till(float t)
 }
 
 //SERVOS
+void set_up()//puts all the servos in the right places to fit in the box
+{
+	printf("basket and both arms need to be down.\n");
+	printf("press black button when ready.\n");
+	WAIT(side_button());
+	set_servo_position(BLOCK_CLAW, BC_START);
+	set_servo_position(BLOCK_ARM, BA_DOWN);
+	set_servo_position(TRIBBLE_ARM, TA_DOWN);
+	set_servo_position(TRIBBLE_CLAW, TC_CLOSE);
+	cmpc(BASKET);
+	enable_servos();
+	msleep(1000);//let them get into position
+	move_basket(BASKET_UP);
+	set_servo_position(BLOCK_ARM, BA_START);
+	msleep(1000);
+	move_basket(BASKET_START);
+}
+void ready_to_jump()//after start of round, moves out of box to get ready to jump
+{
+	move_basket(BASKET_UP);
+	set_servo_position(BLOCK_ARM, BA_DOWN);
+	msleep(1000);
+	move_basket(BASKET_DOWN);
+	set_servo_position(BLOCK_ARM, BA_UP);
+	set_servo_position(TRIBBLE_ARM, TA_JUMP);
+	msleep(1000);
+}
+void move_basket(int target)//target position
+{
+	mtp(BASKET, 500, target);//half power
+	bmd(BASKET);
+}
 void servo_set(int port,int end,float time)
 {//position is from 0-2047
 	float increment = .01;

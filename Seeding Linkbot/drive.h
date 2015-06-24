@@ -10,6 +10,8 @@
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459//yea, get rekt
 #define HSPDl 20//used for line squareups
 #define HSPDr 18
+#define R_DIST_CONST 1.//distance constants-->how far you tell it to move/how far it actually moves
+#define L_DIST_CONST 1.//
 #define PID_CONST .4//how much the motor speeds change based off how far off each motor is
 #define END_THRESHOLD 460.//at what point the "end" starts-->460 is 1/2 turn (~4 inches for the standard wheels)
 #define END_SCALE .4//how much the motor slows down at the end (=final speed)
@@ -198,6 +200,17 @@ void line_square(int col)//1 = BLACK, 0 = white
 	//printf("FINISHED\n");
 }
 
+void physical_squareup(boolean forward)//true means square up on the front, false means back
+{
+	int direction=1;//forward (-1 is back)
+	if(!forward)
+		direction=-1;
+	motor(MOT_LEFT, 40*direction);
+	motor(MOT_RIGHT, 40*direction);
+	msleep(1000);
+	drive_off();
+}
+
 void test_driving()
 {
 	WAIT(!(a_button()||b_button()||c_button()||x_button()||y_button()||z_button()));
@@ -275,8 +288,14 @@ void test_driving()
 	}
 }
 
-#define R_DIST_CONST 1.//distance constants-->how far you tell it to move/how far it actually moves
-#define L_DIST_CONST 1.//
+void time_drive(int lspeed, int rspeed, int time)//speed 0-100, time in ms
+{//-->drive at the given speeds for the given time
+	motor(MOT_LEFT, lspeed);
+	motor(MOT_RIGHT, rspeed);
+	msleep(time);
+	drive_off();
+}
+
 void forward(float distance, int power)//distance in inches, power on [1,100]
 {
 	if(distance==0||power==0)//not helpful-->don't move
