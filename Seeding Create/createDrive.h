@@ -32,6 +32,23 @@ void create_write_byte(int num)
 
 #define create_write_int(integer) create_write_byte(get_high_byte2(integer));create_write_byte(get_low_byte2(integer))
 
+
+#define MM_TO_INCH 25.4
+
+void forward_time(int time, int speed)
+{
+	create_drive_direct(speed, speed);
+	msleep(time);
+	create_stop();
+}
+
+void backward_time(int time, int speed)
+{
+	create_drive_direct(-speed, -speed);
+	msleep(time);
+	create_stop();
+}
+
 //this is for just good old plain scripting
 void create_wait_time(int time)//time is in deciseconds
 {
@@ -106,13 +123,16 @@ void create_left(int angle, int radius, int speed)
 }
 void create_forward(int dist, int speed)
 {
+	dist = dist * MM_TO_INCH;
 	create_write_byte(145);
 	create_write_int(speed);
+	speed = (int) (speed * 1.01); // speed up the right one a bit.
 	create_write_int(speed);
 	create_wait_dist(dist);
 }
 void create_backward(int dist, int speed)
 {
+	dist = dist * MM_TO_INCH;
 	create_write_byte(145);
 	create_write_int(-speed);
 	create_write_int(-speed);

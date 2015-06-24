@@ -1,18 +1,124 @@
-#define ARM 1
-#define ARM_DOWN 500
-#define ARM_UP 1500
-#define ARM_MID 1100
-//1277 at alans' as of 4-10 -4-16 moved it lower
-//1140 at wangs
-#define BOTGUY_WHAPPER 0
-#define BOTGUY_WHAPPER_DOWN 1600
-#define BOTGUY_WHAPPER_UP 700
-#define BOTGUY_WHAPPER_MID 1100
-#define BOTGUY_WHAPPER_MIDDLE BOTGUY_WHAPPER_MID
+#define PING_ARM 0
+#define PING_ARM_UP_SPEED 100
+#define PING_ARM_DOWN_SPEED -100
+#define PING_ARM_UP_POS 650
 
+#define BLOCK_ARM 2
+#define BLOCK_ARM_UP_SPEED -100
+#define BLOCK_ARM_DOWN_SPEED 100
+#define BLOCK_ARM_SPEED 100
+#define BLOCK_ARM_UP_POS -900
+//-2700 is straight up
+//this position is relative to down being 0
 
 #define RIGHT_TOUCH 15
 #define LEFT_TOUCH 14
+#define LIGHT_START 0
+
+//menu
+#define A 0
+#define B 1
+#define C 2
+
+#define TESTING 0
+#define MAIN 1
+
+// speeds defined: {slowSpeed,normalSpeed, fastSpeed} out of 500
+#define SS 100
+#define NS 300
+#define FS 500
+#define TS 100
+
+void blockArmUp()
+{
+	move_relative_position(BLOCK_ARM, BLOCK_ARM_UP_SPEED*10, BLOCK_ARM_UP_POS); 
+	msleep(2000);
+}
+void pingArmUp()
+{
+	move_relative_position(PING_ARM, PING_ARM_UP_SPEED*10, PING_ARM_UP_POS); 
+	msleep(2000);
+}
+void blockArmDown()
+{
+	move_relative_position(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED*10, -BLOCK_ARM_UP_POS); 
+	msleep(2000);
+}
+void pingArmDown()
+{
+	move_relative_position(PING_ARM, PING_ARM_DOWN_SPEED*10, -PING_ARM_UP_POS); 
+	msleep(2000);
+}
+void timeBlockDown(int time)
+{
+	create_block();
+	motor(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED);
+	msleep(time);
+	off(BLOCK_ARM);
+}
+void timeBlockUp(int time)
+{
+	create_block();
+	motor(BLOCK_ARM, BLOCK_ARM_UP_SPEED);
+	msleep(time);
+	off(BLOCK_ARM);
+}
+void shake(int count)
+{
+	int i = 0;
+	while (i < count)
+	{
+		create_forward(1,FS);
+		create_backward(1,FS);
+		//create_right(1,1,FS);
+		//create_left(1,1,FS);	
+		i++;
+	}
+	create_block();
+}
+	
+int menu()
+{
+	printf("A for testing, B for main\n");
+	int button = getabcbutton();
+	if (button == A)
+	{
+		printf("TESTING\n");
+			printf("  A for block arm up\n  B for block arm down\n, C for ping arm up");
+		while(1)
+		{
+			button = getabcbutton();
+			if (button == A)
+			blockArmUp();
+			else if (button == B)
+			{
+				motor(BLOCK_ARM,BLOCK_ARM_DOWN_SPEED*0.8);
+				while (!b_button());
+			}
+			else if (button == C)
+			{
+				pingArmUp();
+			}
+		}
+		//testing code here.
+		return TESTING;
+	}
+	else if (button == B)
+	{
+		printf("Running in main\n");
+		return MAIN;
+	}
+	
+}
+
+
+void init()
+{
+	wait_for_light(LIGHT_START);
+	shut_down_in(119.5);
+	clear_motor_position_counter(BLOCK_ARM);
+}
+
 
 void touchSquareUp(int speed)
 {
@@ -221,7 +327,7 @@ int currstate;
 	}
 	}
 	now();
-	}
+}
 #endif
 
 
@@ -245,3 +351,18 @@ int getabcbutton(){//returns 0,1,2 on a,b,c
 	return 0;//if something broke
 }
 
+int wait_time;
+/*
+void wait_shutdown()
+{
+	msleep(wait_time);
+	printf("ended based off time\n");
+	create_disconnect();
+	_exit(0);//this throws a warning, but hey, it still compiles, so whatevs
+}
+void shutdownin(float time)//cause raisins.
+{
+	wait_time=(int)(time*1000);
+	thread tw=thread_create(wait_shutdown);
+	thread_start(tw);
+}*/
