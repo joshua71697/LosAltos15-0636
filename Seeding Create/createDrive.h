@@ -126,7 +126,7 @@ void create_forward(int dist, int speed)
 	dist = dist * MM_TO_INCH;
 	create_write_byte(145);
 	create_write_int(speed);
-	speed = (int) (speed * 1.01); // speed up the right one a bit.
+	speed = (int) (speed); 
 	create_write_int(speed);
 	create_wait_dist(dist);
 }

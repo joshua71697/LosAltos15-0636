@@ -1,7 +1,8 @@
 #define PING_ARM 0
 #define PING_ARM_UP_SPEED 100
 #define PING_ARM_DOWN_SPEED -100
-#define PING_ARM_UP_POS 650
+#define PING_ARM_UP_POS 1000
+#define PING_ARM_DOWN_POS (100 - PING_ARM_UP_POS) 
 
 #define BLOCK_ARM 2
 #define BLOCK_ARM_UP_SPEED -100
@@ -10,6 +11,11 @@
 #define BLOCK_ARM_UP_POS -900
 //-2700 is straight up
 //this position is relative to down being 0
+
+#define PING_GATE 0
+#define PING_GATE_CLOSED 2047
+#define PING_GATE_OPEN 1047
+
 
 #define RIGHT_TOUCH 15
 #define LEFT_TOUCH 14
@@ -29,6 +35,14 @@
 #define FS 500
 #define TS 100
 
+void deploy()
+{
+	enable_servos();
+	set_servo_position(PING_GATE, PING_GATE_OPEN);
+	msleep(2500);
+	
+}
+
 void blockArmUp()
 {
 	move_relative_position(BLOCK_ARM, BLOCK_ARM_UP_SPEED*10, BLOCK_ARM_UP_POS); 
@@ -36,8 +50,16 @@ void blockArmUp()
 }
 void pingArmUp()
 {
-	move_relative_position(PING_ARM, PING_ARM_UP_SPEED*10, PING_ARM_UP_POS); 
-	msleep(2000);
+	motor(PING_ARM, PING_ARM_UP_SPEED);
+	clear_motor_position_counter(PING_ARM);
+	int pos = get_motor_position_counter(PING_ARM);
+	while( pos < PING_ARM_UP_POS )
+	{
+		pos = get_motor_position_counter(PING_ARM);
+		printf("\n pos: %d", pos);
+	}
+	ao();
+	msleep(500);
 }
 void blockArmDown()
 {
@@ -46,8 +68,16 @@ void blockArmDown()
 }
 void pingArmDown()
 {
-	move_relative_position(PING_ARM, PING_ARM_DOWN_SPEED*10, -PING_ARM_UP_POS); 
-	msleep(2000);
+	motor(PING_ARM, PING_ARM_DOWN_SPEED);
+	clear_motor_position_counter(PING_ARM);
+	int pos = get_motor_position_counter(PING_ARM);
+	while( pos > PING_ARM_DOWN_POS )
+	{
+		pos = get_motor_position_counter(PING_ARM);
+		printf("\n pos: %d", pos);
+	}
+	ao();
+	msleep(1000); // longer
 }
 void timeBlockDown(int time)
 {
@@ -68,15 +98,31 @@ void shake(int count)
 	int i = 0;
 	while (i < count)
 	{
-		create_forward(1,FS);
-		create_backward(1,FS);
-		//create_right(1,1,FS);
-		//create_left(1,1,FS);	
+		//create_forward(1,FS);
+		//create_backward(1,FS);
+		create_right(1,1,FS);
+		create_left(1,1,FS);	
 		i++;
 	}
 	create_block();
 }
-	
+//helper method for "scorePing()"
+void upDown()
+{
+	pingArmUp();
+	create_block();
+	create_forward(3.5,SS);
+	create_block();
+	msleep(500);
+	pingArmDown();
+}
+void scorePing()
+{
+	upDown();
+	create_forward(7.5,SS);
+	create_block();
+	msleep(500);
+}
 int menu()
 {
 	printf("A for testing, B for main\n");
@@ -84,12 +130,13 @@ int menu()
 	if (button == A)
 	{
 		printf("TESTING\n");
-			printf("  A for block arm up\n  B for block arm down\n, C for ping arm up");
+			printf("  A for ping arm down\n  B for block arm down\n, C for ping arm up");
 		while(1)
 		{
 			button = getabcbutton();
+			msleep(500);
 			if (button == A)
-			blockArmUp();
+				pingArmDown();
 			else if (button == B)
 			{
 				motor(BLOCK_ARM,BLOCK_ARM_DOWN_SPEED*0.8);
@@ -114,9 +161,16 @@ int menu()
 
 void init()
 {
-	wait_for_light(LIGHT_START);
-	shut_down_in(119.5);
+	// wait_for_light(LIGHT_START);
+	//shut_down_in(119.5);
 	clear_motor_position_counter(BLOCK_ARM);
+	clear_motor_position_counter(PING_ARM);
+	enable_servos();
+	set_servo_position(PING_GATE, PING_GATE_CLOSED);
+	msleep(200);
+	create_connect();
+	backward_time(1000,SS); //square up first.
+	
 }
 
 
