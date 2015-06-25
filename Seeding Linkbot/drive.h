@@ -10,11 +10,11 @@
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459//yea, get rekt
 #define HSPDl 20//used for line squareups
 #define HSPDr 18
-#define R_DIST_CONST 1.//distance constants-->how far you tell it to move/how far it actually moves
+#define R_DIST_CONST .98//distance constants-->how far you tell it to move/how far it actually moves
 #define L_DIST_CONST 1.//
 #define PID_CONST .4//how much the motor speeds change based off how far off each motor is
 #define END_THRESHOLD 460.//at what point the "end" starts-->460 is 1/2 turn (~4 inches for the standard wheels)
-#define END_SCALE .4//how much the motor slows down at the end (=final speed)
+#define END_SCALE .5//how much the motor slows down at the end (=final speed)
 //if you don't want it to slow down at the end, set END_THRESHOLD to 0. or END_SCALE to 1.
 
 #define ks 15//distance from one wheel to another in cm
@@ -23,9 +23,11 @@
 #define CMtoBEMF (921/wheeldiameter/PI) //number of units per rotation divided by circumference
 #define INtoCM 2.5
 #define DEGtoRAD PI/180//convert from degrees to radians
+#define TIMEOUT 30//how many ms the timeout is per tick the motor has to travel
 
 #define LBUMP digital(14)
 #define RBUMP digital(15) //left/right back bump sensors (used for square_back())
+#define TOUCH_FRONT digital(15)
 
 #define drive_off() off(MOT_RIGHT) ;off(MOT_LEFT)
 
@@ -137,8 +139,6 @@ void f_line_follow(float distance)
 1,0-> 0
 0,0-> 0
 */
-
-#define TOUCH_FRONT digital(15)
 
 void line_follow_touch()
 {
@@ -409,21 +409,25 @@ void drive(float l_ticks, float r_ticks, float max_pwr)//ticks each motor has to
 	}
 	float l_base_pwr;//power each motor moves at if everything is going as intended
 	float r_base_pwr;//
+	int timeout;//in ms, based off how far the fast motor has to travel-->if it reaches the timeout, it will stop
 	if(my_abs(l_ticks)>my_abs(r_ticks))//left motor is moving faster
 	{
 		l_base_pwr=max_pwr*sign(l_ticks);//run left at max power in the right direction
 		r_base_pwr=max_pwr*(r_ticks/my_abs(l_ticks));//run right at lower speed, proportional to distance to travel
+		timeout=my_abs(l_ticks)*TIMEOUT;
 	}
 	else//< (can also be equal, but then the division term will end up being 1, so it works out)
 	{
 		r_base_pwr=max_pwr*sign(r_ticks);//see above
 		l_base_pwr=max_pwr*(l_ticks/my_abs(r_ticks));//
+		timeout=my_abs(r_ticks)*TIMEOUT;
 	}
 	cmpc(MOT_LEFT);
 	cmpc(MOT_RIGHT);
+	int start_time=curr_time();
 	if(l_ticks==0)//means the right motor moves but the left doesn't
 	{//I know they can't both be 0 because I sanitized my results at the beginning
-		while(my_abs(gmpc(MOT_RIGHT))<my_abs(r_ticks))
+		while(my_abs(gmpc(MOT_RIGHT))<my_abs(r_ticks)&&curr_time()-start_time<timeout)
 		{
 			float r_pwr=r_base_pwr;//actual power it will turn at
 			float r_left=my_abs(r_ticks)-my_abs(gmpc(MOT_RIGHT));//ticks remaining
@@ -435,7 +439,7 @@ void drive(float l_ticks, float r_ticks, float max_pwr)//ticks each motor has to
 	}
 	else if(r_ticks==0)//ditto for if the right doesn't move
 	{
-		while(my_abs(gmpc(MOT_LEFT))<my_abs(l_ticks))
+		while(my_abs(gmpc(MOT_LEFT))<my_abs(l_ticks)&&curr_time()-start_time<timeout)
 		{
 			float l_pwr=l_base_pwr;//see comments above
 			float l_left=my_abs(l_ticks)-my_abs(gmpc(MOT_LEFT));
@@ -447,7 +451,7 @@ void drive(float l_ticks, float r_ticks, float max_pwr)//ticks each motor has to
 	}
 	else//both motors have to move
 	{
-		while(my_abs(gmpc(MOT_LEFT))<my_abs(l_ticks)||my_abs(gmpc(MOT_RIGHT))<my_abs(r_ticks))//one isn't finished
+		while((my_abs(gmpc(MOT_LEFT))<my_abs(l_ticks)||my_abs(gmpc(MOT_RIGHT))<my_abs(r_ticks))&&curr_time()-start_time<timeout)//one isn't finished
 		{
 			float l_pwr=l_base_pwr;//actual power
 			float r_pwr=r_base_pwr;//
