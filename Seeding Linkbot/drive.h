@@ -14,7 +14,7 @@
 #define L_DIST_CONST 1.//
 #define PID_CONST .4//how much the motor speeds change based off how far off each motor is
 #define END_THRESHOLD 460.//at what point the "end" starts-->460 is 1/2 turn (~4 inches for the standard wheels)
-#define END_SCALE .5//how much the motor slows down at the end (=final speed)
+#define END_SCALE .9//how much the motor slows down at the end (=final speed)
 //if you don't want it to slow down at the end, set END_THRESHOLD to 0. or END_SCALE to 1.
 
 #define ks 15//distance from one wheel to another in cm

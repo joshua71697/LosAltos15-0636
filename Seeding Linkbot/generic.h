@@ -12,12 +12,13 @@
 //motors and servos
 #define BLOCK_CLAW 0
 #define BC_OPEN 150
-#define BC_CLOSE 1000
+#define BC_CLOSE 1100
 #define BC_START 1400
 #define BLOCK_ARM 1
 #define BA_START 300
 #define BA_DOWN 1900
 #define BA_UP 600
+#define BA_MID 1000//just out of the way of the basket
 #define BA_LIFT 1800//lifted slightly off the ground
 #define TRIBBLE_CLAW 2
 #define TC_OPEN 1500
@@ -25,7 +26,7 @@
 #define TC_CLOSE 200
 #define TRIBBLE_ARM 3
 #define TA_UP 450
-#define TA_DOWN 1600
+#define TA_DOWN 1550
 #define TA_JUMP 1000//position to get over the pipe (slightly raised)
 #define BASKET 1//motor
 #define BASKET_DOWN 0
@@ -33,7 +34,9 @@
 #define BASKET_UP -250
 #define BASKET_HALF -205//lifted up just enough to let the block arm through
 
-void move_basket(int target, boolean full);
+void move_basket(int target, boolean up);
+void hold_basket(int target);
+void release_basket();
 
 //UTILITY
 float sign(float input)//returns 1 for positive, 0 for 0, -1 for negative
@@ -294,30 +297,41 @@ void set_up()//puts all the servos in the right places to fit in the box
 	cmpc(BASKET);
 	enable_servos();
 	msleep(1000);//let them get into position
-	move_basket(BASKET_HALF, false);
+	move_basket(BASKET_HALF, true);
+	hold_basket(BASKET_HALF);
 	set_servo_position(BLOCK_ARM, BA_START);
 	msleep(1000);
+	release_basket();
 	move_basket(BASKET_START, false);
 }
 void ready_to_jump()//after start of round, moves out of box to get ready to jump
 {
-	move_basket(BASKET_HALF, false);
+	move_basket(BASKET_HALF, true);
+	hold_basket(BASKET_HALF);
 	set_servo_position(BLOCK_ARM, BA_DOWN);
 	msleep(1000);
+	release_basket();
 	move_basket(BASKET_DOWN, false);
+	msleep(500);
 	set_servo_position(BLOCK_ARM, BA_UP);
 	set_servo_position(TRIBBLE_ARM, TA_JUMP);
 	msleep(1000);
 }
-void move_basket(int target, boolean full)//target position, whether or not it is full-->will give more power if it has stuff in it
+void move_basket(int target, boolean up)//target position, whether or not it is going up-->will give more power
 {
-	if(full)//run with more power
-		mtp(BASKET, 500, target);//half power
+	int speed;
+	if(up)//run with more power
+		speed=600;
 	else//run on low power
-		mtp(BASKET, 250, target);
-	bmd(BASKET);
+		speed=150;
+	mtp(BASKET, speed, target);
+	printf("moving the basket...");
+	float start_time=curr_time();
+	LIMIT(get_motor_done(BASKET), 3);//wait until done or times out after 3 seconds
+	printf("done!\n");
+	off(BASKET);
 }
-boolean hold=-1;//whether or not the basket is holding-->starts at -1 to tell hold_basket that basket_pid hasn't been called yet
+boolean hold=false;//whether or not the basket is holding
 int hold_target;//the target for basket_pid
 void basket_pid()//the actual pid loop for holding the basket up-->called from hold_basket()
 {
@@ -326,20 +340,22 @@ void basket_pid()//the actual pid loop for holding the basket up-->called from h
 		move_basket(hold_target, true);//better to assume true if false than vice versa
 	while(hold==true)//keep holding while you need to
 	{
+		int power=10;//10 is base-->makes sure it won't fall down
 		int error=hold_target-gmpc(BASKET);
-		if(error>6)//big enough error to care
-			motor(BASKET, error*2);
+		if(error*sign(BASKET_UP)>5)//needs to move up
+			power=90;//moves it towards position
+		else if(error*sign(BASKET_UP)<-5)//needs to move down
+			power=-10;
+		power*=sign(BASKET_UP);//reverse the power if up is negative
+		motor(BASKET, power);
+		msleep(10);
 	}
+	motor(BASKET, 0);
 	basket_pid();//restarts-->b/c exited loop, hold is false-->will wait until true again
 }
 void hold_basket(int target)//holds the basket at a specified position
 {
 	hold_target=target;
-	if(hold==-1)//first time throught-->need to start thread
-	{
-		thread holding=thread_create(basket_pid);
-		thread_start(holding);
-	}
 	hold=true;//will start the loop
 }
 void release_basket()//lets the basket do whatever (ends the pid loop)
