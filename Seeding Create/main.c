@@ -13,51 +13,59 @@
 
 int main()
 {
-	//pingArmUp();
-	//timePingUp(7000);
+	int menuResult = menu();
 	
-	if (menu() == TESTING)
-		return 0;
+	if (menuResult == TESTING)
+		menu();
 	
 	init();
-	/*
-	create_forward(62,FS);
-	create_right(5,100,NS); 
-	create_block();
 	
-	forward_time(2000,NS);
-	backward_time(800,SS);
-	forward_time(1000,SS);
-	
-	create_backward(5,SS);
-	create_block();
-	msleep(500);
-	
-	blockArmUp();
-	create_backward(50,NS);
-	create_right(90,1,TS);
-	
-	create_block();
-	backward_time(1000,NS);
-	
-	create_forward(15,NS);
-	create_right(135,1,TS);
-	create_backward(7,NS);
-	//create_left(10,1,TS); //extra turn
-	timeBlockUp(6500);
-	shake(4);
-	
-	///// finished scoring blocks, onto phase 2 /////
-	
-	timeBlockDown(3000);
-	create_right(30,1,TS);
-	create_block();
-	backward_time(2000,SS);
-	create_forward(20,NS);
-	create_right(90,1,TS);
-	create_backward(24, NS);
-	create_block();
-	*/
+	if (menuResult == MAIN) // skip all of this if menu() returns "HALF"
+	{	
+		moveMotor(BLOCK_ARM,BLOCK_ARM_UP_SPEED,BLOCK_ARM_HOVER_POS);
+		create_forward(48,NS);
+		moveMotor(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED, 0);
+
+		//create_right(5,100,NS); 
+		create_block();
+		
+		forward_time(3000,SS);
+		//backward_time(800,SS);
+		//forward_time(1000,SS);
+		
+		create_backward(5,SS);
+		create_block();
+		msleep(500);
+		
+		timeBlockUp(500);
+		create_backward(38,NS);
+		create_right(90,1,TS);
+		
+		create_block();
+		backward_time(1500,SS);
+		
+		create_forward(15,NS);
+		create_right(135,1,TS);
+		create_backward(9,NS);
+
+		create_block();
+		//create_left(10,1,TS); //extra turn
+		timeBlockUp(5500);
+		shake(4);
+		
+		///// finished scoring blocks, onto phase 2 /////
+		
+		timeBlockDown(5000);
+		create_right(30,1,TS);
+		create_block();
+		backward_time(2000,SS);
+		create_forward(20,NS);
+		create_right(90,1,TS);
+		create_backward(24, NS);
+		create_block();
+		
+	}
+	// the robot can skip to this point if we select the "half" option
 	pingArmUp();
 	
 	///// square up routine in the corner
@@ -70,11 +78,11 @@ int main()
 	create_left(90,1,TS);
 	create_block();
 	backward_time(3000,SS); //squared up with base wall.
-	create_forward(2,NS);
+	create_forward(1,NS);
 	create_right(10,1,TS);
 	create_block();
 	pingArmDown();
-
+	
 	create_left(10,1,TS);
 	create_block();
 	
@@ -83,7 +91,7 @@ int main()
 	scorePing(); // ### SCORE ONE ###
 	scorePing(); // ### SCORE TWO ###
 	upDown();    // ### SCORE THREE ### 
-	create_left(5,1,TS);
+	create_right(5,1,TS);
 	create_forward(30,NS); // dist between is 36
 	create_block();
 	scorePing(); // ### SCORE FOUR ###

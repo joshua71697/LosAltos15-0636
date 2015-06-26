@@ -8,7 +8,9 @@
 #define BLOCK_ARM_UP_SPEED -100
 #define BLOCK_ARM_DOWN_SPEED 100
 #define BLOCK_ARM_SPEED 100
-#define BLOCK_ARM_UP_POS -900
+#define BLOCK_ARM_UP_POS -500
+#define BLOCK_ARM_HOVER_POS -50
+#define BLOCK_ARM_MID_POS -60
 //-2700 is straight up
 //this position is relative to down being 0
 
@@ -28,6 +30,8 @@
 
 #define TESTING 0
 #define MAIN 1
+#define HALF 2
+
 
 // speeds defined: {slowSpeed,normalSpeed, fastSpeed} out of 500
 #define SS 100
@@ -42,9 +46,39 @@ void deploy()
 	msleep(2500);
 	
 }
-
+void printMotorPos(int port)
+{
+	int pos = get_motor_position_counter(port);
+	pos = get_motor_position_counter(PING_ARM);
+	printf("\n pos: %d", pos);	
+}
+void moveMotor(int port, int speed, int goalPos)
+{
+	motor(port, speed);
+	clear_motor_position_counter(port);
+	int pos = get_motor_position_counter(port);
+	if ( goalPos > 0 )
+	{
+		while( pos < goalPos )
+		{
+			pos = get_motor_position_counter(port);
+			printMotorPos(port);
+		}
+	}
+	else 
+	{
+		while( pos > goalPos )
+		{
+			pos = get_motor_position_counter(port);
+			printMotorPos(port);
+		}
+	}
+	ao();
+	msleep(500);
+}
 void blockArmUp()
 {
+	moveMotor(BLOCK_ARM, BLOCK_ARM_UP_SPEED, BLOCK_ARM_UP_POS);
 	move_relative_position(BLOCK_ARM, BLOCK_ARM_UP_SPEED*10, BLOCK_ARM_UP_POS); 
 	msleep(2000);
 }
@@ -96,12 +130,14 @@ void timeBlockUp(int time)
 void shake(int count)
 {
 	int i = 0;
+	backward_time(2000,SS);
+	create_forward(1,NS);
 	while (i < count)
 	{
 		//create_forward(1,FS);
 		//create_backward(1,FS);
-		create_right(1,1,FS);
-		create_left(1,1,FS);	
+		create_right(1,1,TS);
+		create_left(1,1,TS);	
 		i++;
 	}
 	create_block();
@@ -109,6 +145,7 @@ void shake(int count)
 //helper method for "scorePing()"
 void upDown()
 {
+	msleep(500);
 	pingArmUp();
 	create_block();
 	create_forward(3.5,SS);
@@ -129,22 +166,44 @@ int menu()
 	int button = getabcbutton();
 	if (button == A)
 	{
-		printf("TESTING\n");
-			printf("  A for ping arm down\n  B for block arm down\n, C for ping arm up");
+		printf("What do you want to test?\n");
+		printf("  A for ping arm \n  B for block arm\n  C for drive");
 		while(1)
 		{
 			button = getabcbutton();
 			msleep(500);
 			if (button == A)
+			{
+				printf("\n=========\n");
+				printf("  A for ping arm up\n  B for ping arm down");
+				button = getabcbutton();
+				if (button == A)
+				pingArmUp();
+				else if (button == B)
 				pingArmDown();
+			}
 			else if (button == B)
 			{
-				motor(BLOCK_ARM,BLOCK_ARM_DOWN_SPEED*0.8);
-				while (!b_button());
+				printf("\n=========\n");
+				printf("  A for block arm up\n  B for block arm down");
+				button = getabcbutton();
+				if (button == A)
+				blockArmUp();
+				else if (button == B)
+				blockArmDown();
 			}
 			else if (button == C)
-			{
-				pingArmUp();
+			{ 
+				printf("\n=========\n");
+				printf("  A for forward\n  B backward\n  C for right spin");
+				button = getabcbutton();
+				create_connect();
+				if (button == A)
+				create_drive_direct(100,100);
+				else if (button == B)
+				create_drive_direct(-100,-100);
+				else if (button == B)
+				create_drive_direct(-100,100);
 			}
 		}
 		//testing code here.
@@ -154,6 +213,11 @@ int menu()
 	{
 		printf("Running in main\n");
 		return MAIN;
+	}
+	else if (button == C)
+	{
+		printf("Running ONLY SECOND HALF");
+		return HALF;
 	}
 	
 }
@@ -377,10 +441,10 @@ int currstate;
 	while (!strcmp(menu[++i].name,"FIN")){
 	if (menu[i].snum==State){
 	nowstr(menu[i].name);
-	return;
-	}
-	}
-	now();
+return;
+}
+}
+now();
 }
 #endif
 
