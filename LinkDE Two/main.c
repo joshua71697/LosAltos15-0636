@@ -1,12 +1,28 @@
+#define CLAWOC 0//claw open/close port
+#define CLAWL 1//claw lift port
+#define ARM 3// arm port
+
+#define CLAW_CLOSE 600
+#define CLAW_OPEN 1550
+#define CLAW_UP 1100
+#define CLAW_DOWN 525
+#define ARM_UP 1500
+#define ARM_DOWN 800
+
+#include "./template.h"
 #include "drive.h"
+
+#define RIGHT(distance,radius); left(distance,radius);
+#define LEFT(distance,radius); right(distance,radius);
+
 /*===ISSUES=====
-Does not drive straight
+Needs to get botguy and far side
 =====ISSUES===*/
 
 void squareup(power,time){
 	motor(0,power);
 	motor(3,power);
-	sleep(time);
+	msleep(time*1000);
 	ao();
 }
 void servo_setup(){
@@ -24,7 +40,7 @@ void servo_drive_pos(){
 	msleep(500);
 }
 void get_gold(){
-	squareup(-100,0.6);
+	backward(2.5);
 	set_servo_position(CLAWOC,CLAW_OPEN);
 	msleep(1000);
 	set_servo_position(CLAWL,CLAW_DOWN);
@@ -49,7 +65,7 @@ void score_gold(){
 	msleep(500);
 }
 void arms_down_slow(){
-	sleep(2);
+	msleep(2000);
 	servo_set(CLAWL,CLAW_DOWN,1);
 	servo_set(ARM,ARM_DOWN,1);
 }
@@ -64,30 +80,28 @@ int main(){
 	/*===Gold One===*/
 	servo_drive_pos();
 	squareup(-80,1);
-	forward(35,100);
+	forward(90);
 	squareup(80,1);
 	get_gold();
 	
 	/*===Score Gold===*/
-	back(17,80);
+	backward(42);
 	score_gold();
 	
 	/*===Reposition===*/
-	left(90,0,100);
+	LEFT(87,0);
 	squareup(80,3);
 	
 	/*===Botguy===*/
 	thread going=thread_create(arms_down_slow);
 	thread_start(going);
-	back(20,100);
-	
-	back(30,100);
-	/*set_servo_position(ARM,ARM_UP);
+	backward(180);
+	set_servo_position(ARM,ARM_UP);
 	msleep(500);
-	forward(34+5,100);
-	back(5);
+	forward(30);
+	backward(30);
 	set_servo_position(ARM,ARM_DOWN);
-	msleep(500);*/
+	msleep(500);
 	
 	/*===Tail===*/
 	disable_servos();
@@ -96,6 +110,8 @@ int main(){
 }
 
 int tempmain(){
-	back(40,100);
+	RIGHT(90,0);
+	printf("Hello,World!");
+	msleep(1000);
 }
 

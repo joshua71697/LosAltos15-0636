@@ -10,9 +10,13 @@
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459
 #define HSPDl 20//used for line squareups
 #define HSPDr 18
-#define R_DIST_CONST 1.//distance constants-->how far you tell it to move/how far it actually moves
-#define L_DIST_CONST .955//
-#define PID_CONST .4//how much the motor speeds change based off how far off each motor is
+
+#define R_DIST_CONST .9//distance constants-->how far you tell it to move/how far it actually moves
+#define L_DIST_CONST .88//
+#define RB_DIST_CONST .9//backwards drive constants
+#define LB_DIST_CONST .860//
+
+#define PID_CONST 7//how much the motor speeds change based off how far off each motor is
 #define END_THRESHOLD 460.//at what point the "end" starts-->460 is 1/2 turn (~4 inches for the standard wheels)
 #define END_SCALE .5//how much the motor slows down at the end (=final speed)
 //if you don't want it to slow down at the end, set END_THRESHOLD to 0. or END_SCALE to 1.
@@ -333,8 +337,8 @@ void back(float distance, int power)//same params as forward
 	}
 	if(power>100)//can't go above 100
 		power=100;//so go at max power
-	float r_dist=distance*INtoCM*CMtoBEMF*R_DIST_CONST;//total backEMF counts it needs to go
-	float l_dist=distance*INtoCM*CMtoBEMF*L_DIST_CONST;//
+	float r_dist=distance*INtoCM*CMtoBEMF*RB_DIST_CONST;//total backEMF counts it needs to go
+	float l_dist=distance*INtoCM*CMtoBEMF*LB_DIST_CONST;//
 	drive(-l_dist, -r_dist, (float)(power));//negative cause it's going backwards
 }
 
