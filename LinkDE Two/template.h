@@ -1,25 +1,9 @@
 /********************************************************************************
- * Botball LACT Template							*
- * Include this in each of your programs as a default library. 			*
- * 										*
- * Sample Usage: 								*
- *										*
- *	Place the following files inside the Link folder			*
- *		: menu.h							*
- *		: drive.h							*
- *										*
- *	Place the following files inside the Create folder			*
- *		: createDrive.h							*
- *		: finalscripting.c						*
- *										*
- *	Place the version of this file (either with the create or link mode	*
- *	defined) in the same directory as your create or link folder.		*
- * 										*
- *	Then, include the following line at the beginning of your program:	*
- *		#include "./template.h"						*
- *										*
- * @author Manan								*
- * Version 421014								*
+ * Original by @author Steven and @author Manan
+ * Edited for simple use
+ * 
+ * @author Manan						 
+ * Version 421014								
  ********************************************************************************/
 
 //common light sensor port
@@ -225,4 +209,12 @@ void set_servo_color(int servo, int camchannel)
 	display_printf(0,1,"Center of largest blob: (%d,%d)   ",x,y);
 	offset=5*(x-80); // amount to deviate servo from center
 	set_servo_position(0,1024+offset);
+}
+
+void reset_buttons()
+{
+	extra_buttons_hide();
+	set_a_button_text("A");
+	set_b_button_text("B");
+	set_c_button_text("C");
 }

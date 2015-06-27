@@ -15,9 +15,9 @@
 #define RIGHT(distance,radius); left(distance,radius);
 #define LEFT(distance,radius); right(distance,radius);
 
-/*===ISSUES=====
+/*****ISSUES********************
 Needs to get botguy and far side
-=====ISSUES===*/
+******ISSUES*******************/
 
 void squareup(power,time){
 	motor(0,power);
@@ -70,12 +70,13 @@ void arms_down_slow(){
 	servo_set(ARM,ARM_DOWN,1);
 }
 
-int main(){
+void routine(){
 	/*===Start===*/
 	servo_setup();
-	printf("Press any button to start");
-	WAIT(a_button()||b_button()||c_button());
-	//printf("waiting 2 seconds"); sleep(2);
+	printf("Press any button to start\n");
+	//WAIT(a_button()||b_button()||c_button());
+	light_start(0);
+	printf("waiting 2 seconds"); sleep(2);
 	
 	/*===Gold One===*/
 	servo_drive_pos();
@@ -89,7 +90,8 @@ int main(){
 	score_gold();
 	
 	/*===Reposition===*/
-	LEFT(87,0);
+	forward(5);
+	RIGHT(80,0);
 	squareup(80,3);
 	
 	/*===Botguy===*/
@@ -98,10 +100,12 @@ int main(){
 	backward(180);
 	set_servo_position(ARM,ARM_UP);
 	msleep(500);
-	forward(30);
-	backward(30);
+	forward(55);
+	backward(55);
 	set_servo_position(ARM,ARM_DOWN);
 	msleep(500);
+	set_servo_position(CLAWOC,CLAW_OPEN-300);
+	forward(250);
 	
 	/*===Tail===*/
 	disable_servos();
@@ -109,9 +113,24 @@ int main(){
 	
 }
 
-int tempmain(){
-	RIGHT(90,0);
+void test(){
+	backward(200);
 	printf("Hello,World!");
 	msleep(1000);
 }
 
+int main(){
+	set_a_button_text("MAIN");
+	set_b_button_text("TEST");
+	set_c_button_text("EXIT");
+	while(!c_button()){
+		if(a_button()){
+			reset_buttons();
+			routine();
+		}
+		else if(b_button()){
+			reset_buttons();
+			test();
+		}
+	}
+}

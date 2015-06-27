@@ -8,12 +8,12 @@
 
 /**THESE ARE IMPORTANT**/
 #define SPD 60//turning
-#define SPDl 89.//right forward (arc values vary based on link power)
-#define SPDr 100.//left forward
+#define SPDl 92.//left forward (arc values vary based on link power)
+#define SPDr 100.//right forward
 
 #define rdistmult 1.0
-#define SPDlb 80.//right backward
-#define SPDrb 90.//left backward
+#define SPDlb 85.//left backward
+#define SPDrb 100.//right backward
 #define rdistmultb (SPDrb/SPDlb)
 #define wheeldiameter 6
 #define ks 15
