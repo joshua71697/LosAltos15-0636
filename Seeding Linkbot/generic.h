@@ -4,7 +4,7 @@
 
 //general use fake functions
 #define WAIT(thing); while(!(thing)){msleep(1);}
-#define LIMIT(thing,time); {double _tmptime = seconds()+time; while(!(thing) && (_tmptime > seconds())){msleep(1);}}
+#define LIMIT(thing,time); {long _tmptime = systime()+time; while(!(thing) && (_tmptime > systime())){msleep(1);}}//time in ms
 #define gmpc get_motor_position_counter//this just makes things easier...
 #define cmpc clear_motor_position_counter
 #define light_s() analog10(sensor)//this is used in lightstart
@@ -319,17 +319,36 @@ void ready_to_jump()//after start of round, moves out of box to get ready to jum
 }
 void move_basket(int target, boolean up)//target position, whether or not it is going up-->will give more power
 {
-	int speed;
-	if(up)//run with more power
-		speed=600;
-	else//run on low power
-		speed=150;
-	mtp(BASKET, speed, target);
 	printf("moving the basket...");
-	float start_time=curr_time();
-	LIMIT(get_motor_done(BASKET), 3);//wait until done or times out after 3 seconds
+	if(up)//run with more power and a pid loop
+	{
+		int goal_speed=250;//ticks per second
+		float curr_power=90.;//the power it's going at now
+		int last_pos=-999;//last position-->-999 signifies the first time through the loop
+		int direction=sign(gmpc(BASKET)-target);//+1 or -1
+		motor(BASKET, round(curr_power*direction));//start it moving for a short time to get up to speed
+		msleep(200);
+		while((gmpc(BASKET)-target)*direction<0)//wait until it makes it to the target
+		{
+			if(last_pos!=-999)//has gone through the loop before
+			{
+				int curr_speed=my_abs(gmpc(BASKET)-last_pos)/.005;//.01 seconds between each loop
+				curr_power+=(goal_speed-curr_speed)*.5;//speeds up or slows down if it's not near the goal speed
+			}
+			last_pos=gmpc(BASKET);//for the next time through the loop
+			motor(BASKET, round(curr_power*direction));
+			msleep(5);
+		}
+		off(BASKET);
+	}
+	else//run on low power
+	{
+		int direction=sign(gmpc(BASKET)-target);//+1 or -1
+		motor(BASKET, 10*direction);//run + or - depending on what direction it's going
+		WAIT((gmpc(BASKET)-target)*direction<0);//wait until it makes it to the target
+		off(BASKET);
+	}
 	printf("done!\n");
-	off(BASKET);
 }
 boolean hold=false;//whether or not the basket is holding
 int hold_target;//the target for basket_pid
