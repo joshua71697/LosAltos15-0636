@@ -19,7 +19,14 @@ int main()
 	}
 	else if(c_button())
 	{
-		test_driving();
+		printf("put the basket down and hit the black button\n");
+		WAIT(side_button());
+		cmpc(BASKET);
+		move_basket(BASKET_UP, true);
+		printf("basket up at position %d\n", gmpc(BASKET));
+		msleep(5000);
+		move_basket(BASKET_DOWN, false);
+		printf("basket down at position %d\n", gmpc(BASKET));
 		return 9001;
 	}//if b (no ls), does nothing-->l_s is already false
 	reset_buttons();
@@ -39,17 +46,22 @@ int main()
 	ready_to_jump();
 	time_drive(-90, -90, 1300);//jump!
 	servo_set(TRIBBLE_ARM, TA_UP,.1);//move the claw up so it can square up
+	time_drive(50, 50, 700);//get towards the wall
 	physical_squareup(true);//square up on the front
 	right(-90, 4, 50);//sweep tribbles out of the way, get to the center
 	msleep(500);
 	time_drive(50, 50, 1000);//get away from the tribbles
-	right(180, 0, 50);//turn around
-	time_drive(-50, -50, 1500);//move towards edge
+	right(90, 0, 50);//turn back towards the edge
+	time_drive(-50, -50, 700);//get towards the pipe
+	physical_squareup(false);//square up on the back
+	time_drive(50, 50, 800);//get back to the center
+	right(87, 0, 50);//turn towards the edge
+	time_drive(-50, -50, 1700);//move towards edge
 	physical_squareup(false);//square up on the outside of the field
-	servo_set(TRIBBLE_ARM, TA_JUMP, .1);//move arm down some so it can open the claw
-	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .1);//open the claw part way (to make sure it won't hit the edge)
-	servo_set(TRIBBLE_ARM, TA_DOWN, .1);//drop the claw
-	servo_set(TRIBBLE_CLAW, TC_OPEN, .1);//open the claw the rest of the way-->ready to go
+	servo_set(TRIBBLE_ARM, TA_JUMP, .3);//move arm down some so it can open the claw
+	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .3);//open the claw part way (to make sure it won't hit the edge)
+	servo_set(TRIBBLE_ARM, TA_DOWN, .3);//drop the claw
+	servo_set(TRIBBLE_CLAW, TC_OPEN, .3);//open the claw the rest of the way-->ready to go
 	forward(6, 60);//move to block position
 	servo_set(BLOCK_CLAW, BC_CLOSE, .1);//drop the claw
 	servo_set(BLOCK_ARM, BA_DOWN, .1);//
@@ -65,9 +77,10 @@ int main()
 	servo_set(BLOCK_ARM, BA_UP,1);//drop in the basket
 	msleep(500);
 	servo_set(BLOCK_CLAW, BC_OPEN,.75);//
-	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .3);//put the claw back down
-	servo_set(TRIBBLE_ARM, TA_DOWN, .2);//
-	servo_set(TRIBBLE_CLAW, TC_OPEN, .2);//
+	msleep(300);
+	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .4);//put the claw back down
+	servo_set(TRIBBLE_ARM, TA_DOWN, .3);//
+	servo_set(TRIBBLE_CLAW, TC_OPEN, .3);//
 	servo_set(BLOCK_CLAW, BC_START, .1);//needs to be in this position to drive-->very condensed
 	forward(20, 60);//plow the tribbles!
 	servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
@@ -85,6 +98,7 @@ int main()
 	servo_set(BLOCK_ARM, BA_MID, .1);//get the arm out of the way
 	release_basket();//stop the pid loop for now
 	move_basket(BASKET_DOWN, false);//bring it back
+	printf("basket position: %d\n", gmpc(BASKET));
 	servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
 	servo_set(TRIBBLE_ARM, TA_UP, .3);//
 	servo_set(TRIBBLE_CLAW, TC_OPEN, .3);//
