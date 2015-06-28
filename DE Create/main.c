@@ -1,53 +1,66 @@
 #include "generic.h"
 #include "createDrive.h"
 
-#define LID 0
-#define LID_UP 760
-#define LID_INIT 500
-#define LID_MID 1100
-#define LID_ALL 2040
-#define LID_DOWN 1700
-
-#define SWEEPER 2
-// in = score
-#define SWEEPER_IN 0
-#define SWEEPER_OUT 1000
-#define SWEEPER_INIT 500
-
-#define HELPER_MOTOR 0
-#define HELPER_MOTOR_UP_SPEED 100
-#define HELPER_MOTOR_DOWN_SPEED -100
-
 
 
 int main()
 {
+	///// init /////
+	printf("A for fast, B for medium, C for slow");
+	int button = getabcbutton();
 	create_connect();
+	create_full();
+	set_create_distance(0);
 	enable_servos();
 	set_servo_position(LID, LID_INIT);
 	set_servo_position(SWEEPER, SWEEPER_INIT);
-	msleep(100);
 	
-	create_drive_direct(490,500);
+	///// light start /////
+	light_start(LIGHT);
 	
-	// bring the lid up with the two servos
+	///// go to caldera /////
+	if (button == A)
+		create_drive_direct(500, 500);
+	else if (button == B)
+		create_drive_direct(500,500);
+	else if (button == C)
+		create_drive_direct(300,300);
 	
-	set_servo_position(SWEEPER, SWEEPER_OUT);
+	///// bring the lid up with the two servos /////
+	set_servo_position(SWEEPER, SWEEPER_ALL);
+	set_servo_position(LID, LID_MID);
 	motor(HELPER_MOTOR, HELPER_MOTOR_UP_SPEED);
 	msleep(800);
-	//set_servo_position(LID, LID_MID);
-	msleep(1300);
+	if (button != C)
+	{
+		while ( get_create_distance() < (29 * 25.4) );
+		create_stop();	
+	}
 	
-	
+	///// score and block /////
+	if (button == A)
+	{
+		set_servo_position(LID, LID_DOWN);
+		msleep(1500);
+		// create_drive_direct(500,-500);
+		// msleep(10);
+		
+		create_stop();
+		ao();
+		// shake();	
+		sweep();
+	}
+	else if ( (button == B) || (button == C) )
+	{
+		sweep();
+		servo_set(LID, LID_DOWN, 2);
+		ao();
+		// create_drive_direct(500,-500);
+		// msleep(10);
+		create_stop();
+		//shake();
+	}
 	create_stop();
-	ao();
-	set_servo_position(LID, LID_DOWN);
-	msleep(1500);
-	
-	servo_set(SWEEPER,SWEEPER_IN, 1);
-	servo_set(SWEEPER,SWEEPER_OUT, 1);
-	servo_set(SWEEPER,SWEEPER_IN, 1);
-	
 	disable_servos();
 	
 }

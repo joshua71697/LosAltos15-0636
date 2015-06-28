@@ -1,18 +1,31 @@
-#define ARM 1
-#define ARM_DOWN 500
-#define ARM_UP 1500
-#define ARM_MID 1100
-//1277 at alans' as of 4-10 -4-16 moved it lower
-//1140 at wangs
-#define BOTGUY_WHAPPER 0
-#define BOTGUY_WHAPPER_DOWN 1600
-#define BOTGUY_WHAPPER_UP 700
-#define BOTGUY_WHAPPER_MID 1100
-#define BOTGUY_WHAPPER_MIDDLE BOTGUY_WHAPPER_MID
 
 
 #define RIGHT_TOUCH 15
 #define LEFT_TOUCH 14
+
+#define LID 0
+#define LID_UP 760
+#define LID_INIT 500
+#define LID_MID 1000
+#define LID_ALL 2040
+#define LID_DOWN 1700
+
+#define SWEEPER 2
+// in = score
+#define SWEEPER_IN 0
+#define SWEEPER_OUT 1000
+#define SWEEPER_INIT 500
+#define SWEEPER_ALL 2000
+
+#define HELPER_MOTOR 0
+#define HELPER_MOTOR_UP_SPEED 100
+#define HELPER_MOTOR_DOWN_SPEED -100
+
+#define A 0
+#define B 1
+#define C 2
+
+#define LIGHT 0
 
 void touchSquareUp(int speed)
 {
@@ -51,11 +64,6 @@ void touchSquareUp(int speed)
 		}
 	}
 	printf(" \n that took %d seconds", (seconds()-time));
-}
-
-void cb()
-{
-	create_block();
 }
 
 void squareUp(int millWait)
@@ -243,5 +251,34 @@ int getabcbutton(){//returns 0,1,2 on a,b,c
 	printf("ERROR!");beep();
 	msleep(2000);beep();
 	return 0;//if something broke
+}
+void sweep()
+{
+	int count = 0;
+	while (count < 4)
+	{
+		servo_set(SWEEPER,SWEEPER_IN, 2.5);
+		servo_set(SWEEPER,SWEEPER_OUT, 2.5);
+		create_drive_direct(300,300);
+		msleep(10);
+		create_drive_direct(-300,-300);
+		msleep(10);
+		create_stop();
+		count++;
+	}
+}
+
+void shake()
+{
+	int count = 0;
+	while(count < 4)
+	{
+		create_drive_direct(300,-300);
+		msleep(30);
+		create_drive_direct(-300,300);
+		msleep(30);
+		create_stop();
+		count++;
+	}
 }
 

@@ -88,7 +88,7 @@ void create_right(int angle, int radius, int speed)
 	create_write_int(speed);
 	if (radius == 0){
 		create_write_int(-1);
-	}else{
+		}else{
 		create_write_int(-radius);
 	}
 	create_wait_angle(-angle);
@@ -99,7 +99,7 @@ void create_left(int angle, int radius, int speed)
 	create_write_int(speed);
 	if (radius == 0){
 		create_write_int(1);
-	}else{
+		}else{
 		create_write_int(radius);
 	}
 	create_wait_angle(angle);
@@ -210,10 +210,12 @@ void create_lineup(){//lines up the create on a black line
 		//printf("\n%6d%6d",lcliff,rcliff);
 		create_drive_direct(lspd,rspd);
 		if (lspd == rspd && lspd == 0)
-			done++;
+		done++;
 		else
-			done=0;
+		done=0;
 	}
 	create_stop();
 }
+
+
 #endif

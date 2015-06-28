@@ -9,13 +9,18 @@
 #define BLOCK_ARM_DOWN_SPEED 100
 #define BLOCK_ARM_SPEED 100
 #define BLOCK_ARM_UP_POS -500
-#define BLOCK_ARM_HOVER_POS -50
+#define BLOCK_ARM_HOVER_POS -150
 #define BLOCK_ARM_MID_POS -60
 //-2700 is straight up
 //this position is relative to down being 0
 
+#define BLOCK_CLAW 3
+#define BLOCK_CLAW_CLOSED 1600
+#define BLOCK_CLAW_OPEN 300
+
+
 #define PING_GATE 0
-#define PING_GATE_CLOSED 2047
+#define PING_GATE_CLOSED 2000
 #define PING_GATE_OPEN 1047
 
 
@@ -225,56 +230,30 @@ int menu()
 
 void init()
 {
+	printf("\n init");
 	// wait_for_light(LIGHT_START);
 	//shut_down_in(119.5);
 	clear_motor_position_counter(BLOCK_ARM);
 	clear_motor_position_counter(PING_ARM);
+	printf("\n asdfjkl");
 	enable_servos();
 	set_servo_position(PING_GATE, PING_GATE_CLOSED);
+	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_OPEN);
+	printf("\n 12312312");
 	msleep(200);
 	create_connect();
+	printf("\n nmojimoknjimoknij");
 	backward_time(1000,SS); //square up first.
-	
 }
-
-
-void touchSquareUp(int speed)
+void blockClawClose()
 {
-	float time = seconds();//creates the variable time, which is equal to the seconds the program has been running
-	
-	speed = speed *-1;
-	create_drive_direct(speed, speed);
-	while (seconds()-time < 5)
-	{
-		int rTouch = digital(RIGHT_TOUCH);
-		int lTouch = digital(LEFT_TOUCH);
-		if (seconds()-time > 4)
-		{
-			printf("gonna bail");
-		}
-		if ( (rTouch == 0) && (lTouch == 0) )
-		{
-			//neither pressed
-			create_drive_direct(speed, speed);
-		}
-		else if ( (rTouch == 1) && (lTouch == 0) )
-		{
-			//right is pressed, left isn't
-			create_drive_direct( speed, 0);
-		}
-		else if ( (rTouch == 0) && (lTouch == 1) )
-		{
-			// left is pressed, right isn't
-			create_drive_direct (0, speed);
-		}
-		else 
-		{
-			printf("I'm done!");
-			create_stop();
-			break;
-		}
-	}
-	printf(" \n that took %d seconds", (seconds()-time));
+	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_CLOSED);
+	msleep(300);
+}
+void blockClawOpen()
+{
+	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_OPEN);
+	msleep(300);
 }
 
 void cb()
