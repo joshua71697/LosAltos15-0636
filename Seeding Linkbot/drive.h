@@ -8,8 +8,6 @@
 #define MOT_LEFT 0
 #define MOT_RIGHT 3
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459//yea, get rekt
-#define HSPDl 20//used for line squareups
-#define HSPDr 18
 #define R_DIST_CONST .98//distance constants-->how far you tell it to move/how far it actually moves
 #define L_DIST_CONST 1.//
 #define PID_CONST .4//how much the motor speeds change based off how far off each motor is
@@ -25,180 +23,13 @@
 #define DEGtoRAD PI/180//convert from degrees to radians
 #define TIMEOUT 30//how many ms the timeout is per tick the motor has to travel
 
-#define LBUMP digital(14)
-#define RBUMP digital(15) //left/right back bump sensors (used for square_back())
-#define TOUCH_FRONT digital(15)
-
 #define drive_off() off(MOT_RIGHT) ;off(MOT_LEFT)
-
-#define LLIGHT analog(15)
-#define RLIGHT analog(10)
-#define BLACK 750
 
 void back(float distance, int power);//function declarations
 void forward(float distance, int power);//
 void right(float degrees, float radius, int power);//
 void left(float degrees, float radius, int power);//
 void drive(float l_ticks, float r_ticks, float max_pwr);//
-
-void square_back()
-{
-	int _A = 0,_B = 0;
-	float time = seconds();//used for timeout
-	bk(MOT_LEFT);
-	bk(MOT_RIGHT);
-	while((_A == 0 || _B == 0) && (seconds()-time < 10))//while the bump sensors are false & it has been less than 10 seconds
-	// move backwards, if the bot is bumped, turn the motor off, and break out of the loop
-	{
-		if (LBUMP){//if the left sensor is pressed
-			off(MOT_LEFT);//turn towards wall
-			_A = 1;
-			} else {
-			bk(MOT_LEFT);//otherwise, approach the wall more
-			_A = 0;
-		}
-		
-		if (RBUMP){//if the right sensor is pressed
-			off(MOT_RIGHT);//turn towards wall
-			_B = 1;
-			} else {
-			bk(MOT_RIGHT);//otherwise, approach the wall more
-			_B = 0;
-		}
-		msleep(1);//give other processes time to do things
-	}
-	drive_off();//turn both motors off at end
-}
-
-// to do: add two threshold values. >:( 
-#define BLACK_SEN_THRESH 810
-#define LEFT_BLACK (analog10(1)>BLACK_SEN_THRESH)
-#define RIGHT_BLACK (analog10(0)>BLACK_SEN_THRESH)
-
-void s_line_follow(float distance) //dist in cm
-{
-	int high = 1000;
-	int low = 500;
-	long position = get_motor_position_counter(MOT_RIGHT) + distance*CMtoBEMF;
-	while(get_motor_position_counter(MOT_RIGHT)<=position)
-	{
-		msleep(1);
-		//if both sensors do not detect black, drive forward
-		//if the left sensor detects black, turn right
-		//if the right sensor detects black, turn left
-		if(!LEFT_BLACK && !RIGHT_BLACK)
-		{
-			mav(MOT_LEFT,high);
-			mav(MOT_RIGHT,high);
-		}
-		else if(LEFT_BLACK)
-		{
-			mav(MOT_LEFT,low);
-			mav(MOT_RIGHT,high);
-		}
-		else if(RIGHT_BLACK)
-		{
-			mav(MOT_RIGHT,low);
-			mav(MOT_LEFT,high);
-		}
-	}
-}
-
-void f_line_follow(float distance)
-{
-	int spd = 800;
-	long position = get_motor_position_counter(MOT_RIGHT) + distance*CMtoBEMF;
-	while(get_motor_position_counter(MOT_RIGHT)<=position)
-	{
-		msleep(1);
-		//if both sensors do not detect black, drive forward
-		//if the left sensor detects black, turn right
-		//if the right sensor detects black, turn left
-		if(!LEFT_BLACK && !RIGHT_BLACK)
-		{
-			fd(MOT_LEFT);
-			fd(MOT_RIGHT);
-		}
-		else if(LEFT_BLACK)
-		{
-			mav(MOT_LEFT,spd);
-			fd(MOT_RIGHT);
-		}
-		else if(RIGHT_BLACK)
-		{
-			mav(MOT_RIGHT,spd);
-			fd(MOT_LEFT);
-		}
-	}
-}
-
-
-/*
-1,1-> 1
-0,1-> 0
-1,0-> 0
-0,0-> 0
-*/
-
-void line_follow_touch()
-{
-	int high = 1000;
-	int low = 500;
-	long position = get_motor_position_counter(MOT_RIGHT) + 35*CMtoBEMF;
-	while(!(TOUCH_FRONT || (get_motor_position_counter(MOT_RIGHT)>position)))
-	{
-		msleep(1);
-		//if both sensors do not detect black, drive forward
-		//if the left sensor detects black, turn right
-		//if the right sensor detects black, turn left
-		if(!LEFT_BLACK && !RIGHT_BLACK)
-		{
-			mav(MOT_LEFT,high);
-			mav(MOT_RIGHT,high);
-		}
-		else if(LEFT_BLACK)
-		{
-			mav(MOT_LEFT,low);
-			mav(MOT_RIGHT,high);
-		}
-		else if(RIGHT_BLACK)
-		{
-			mav(MOT_RIGHT,low);
-			mav(MOT_LEFT,high);
-		}
-	}
-}
-
-#endif
-
-void line_square(int col)//1 = BLACK, 0 = white
-{
-	int _A = 0,_B = 0;
-	float time = seconds();//used for timeout
-	while((_A == 0 || _B == 0) && (seconds()-time < 3))//while the bump sensors are false & it has been less than 10 seconds
-	// move backwards, if the bot is bumped, turn the motor off, and break out of the loop
-	{
-		if ((LLIGHT>BLACK)==col){//if the left sensor is pressed
-			motor(MOT_LEFT,-10);//turn towards wall
-			_A = 1;
-			} else {
-			motor(MOT_LEFT,HSPDl);//otherwise, approach the wall more
-			_A = 0;
-		}
-		
-		if ((RLIGHT>BLACK)==col){//if the right sensor is pressed
-			motor(MOT_RIGHT,-10);//turn towards wall
-			_B = 1;
-			} else {
-			motor(MOT_RIGHT,HSPDr);//otherwise, approach the wall more
-			_B = 0;
-		}
-		msleep(1);//give other processes time to do things
-		//printf("L: %d, R: %d\n",LLIGHT, RLIGHT);
-	}
-	drive_off();//turn both motors off at end
-	//printf("FINISHED\n");
-}
 
 void physical_squareup(boolean forward)//true means square up on the front, false means back
 {
@@ -476,3 +307,4 @@ void drive(float l_ticks, float r_ticks, float max_pwr)//ticks each motor has to
 	}
 	drive_off();//stop it at the end
 }
+#endif

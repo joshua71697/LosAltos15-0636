@@ -14,29 +14,29 @@
 #define BC_OPEN 150
 #define BC_CLOSE 1100
 #define BC_START 1400
-#define BLOCK_ARM 1
-#define BA_START 300
-#define BA_DOWN 1900
-#define BA_UP 600
-#define BA_MID 1000//just out of the way of the basket
-#define BA_LIFT 1800//lifted slightly off the ground
+#define BASKET_ARM 1
+#define BA_START 1100
+#define BA_DOWN 1400
+#define BA_UP 200
+#define BA_MID 600//high enough to let the block arm in
 #define TRIBBLE_CLAW 2
-#define TC_OPEN 1500
-#define TC_PART_OPEN 900//only part way open
-#define TC_CLOSE 200
+#define TC_OPEN 1100
+#define TC_PART_OPEN 600//only part way open
+#define TC_CLOSE 0
 #define TRIBBLE_ARM 3
 #define TA_UP 450
 #define TA_DOWN 1550
 #define TA_JUMP 1000//position to get over the pipe (slightly raised)
-#define BASKET 1//motor
-#define BASKET_DOWN 0
-#define BASKET_START -125//just above the block arm
-#define BASKET_UP -250
-#define BASKET_HALF -205//lifted up just enough to let the block arm through
+#define TA_START 1900//pushes against the ground to shift the robot forward
+#define BLOCK_ARM 1//motor
+#define BLA_DOWN 0
+#define BLA_START -330//all the way up-->under the basket
+#define BLA_UP -250//dumping position
+#define BLA_LIFT -50//lifted up right after it got the blocks
+#define BLA_MID -175//out of the way of the basket
 
-void move_basket(int target, boolean up);
-void hold_basket(int target);
-void release_basket();
+void move_block_arm(int target);
+void servo_set(int port,int end,float time);
 
 //UTILITY
 float sign(float input)//returns 1 for positive, 0 for 0, -1 for negative
@@ -290,96 +290,39 @@ void set_up()//puts all the servos in the right places to fit in the box
 	printf("basket and both arms need to be down.\n");
 	printf("press black button when ready.\n");
 	WAIT(side_button());
-	set_servo_position(BLOCK_CLAW, BC_START);
-	set_servo_position(BLOCK_ARM, BA_DOWN);
-	set_servo_position(TRIBBLE_ARM, TA_DOWN);
-	set_servo_position(TRIBBLE_CLAW, TC_CLOSE);
-	cmpc(BASKET);
+	set_servo_position(BLOCK_CLAW, BC_START);//initial positions
+	set_servo_position(BASKET_ARM, BA_DOWN);//
+	set_servo_position(TRIBBLE_ARM, TA_START);//
+	set_servo_position(TRIBBLE_CLAW, TC_CLOSE);//
+	cmpc(BLOCK_ARM);//starts at 0-->down
 	enable_servos();
 	msleep(1000);//let them get into position
-	move_basket(BASKET_HALF, true);
-	hold_basket(BASKET_HALF);
-	set_servo_position(BLOCK_ARM, BA_START);
-	msleep(1000);
-	release_basket();
-	move_basket(BASKET_START, false);
+	servo_set(BASKET_ARM, BA_MID, 1);//get the basket out of the way
+	move_block_arm(BLA_START);//put the block arm up
+	msleep(500);
+	servo_set(BASKET_ARM, BA_START, .5);//put the basket into the right place
 }
 void ready_to_jump()//after start of round, moves out of box to get ready to jump
 {
-	move_basket(BASKET_HALF, true);
-	hold_basket(BASKET_HALF);
-	set_servo_position(BLOCK_ARM, BA_DOWN);
-	msleep(1000);
-	release_basket();
-	move_basket(BASKET_DOWN, false);
-	msleep(500);
-	set_servo_position(BLOCK_ARM, BA_UP);
-	set_servo_position(TRIBBLE_ARM, TA_JUMP);
-	msleep(1000);
+	servo_set(BASKET_ARM, BA_UP, 1);
+	move_block_arm(BLA_DOWN);
+	servo_set(BASKET_ARM, BA_DOWN, 1);
+	move_block_arm(BLA_UP);
+	servo_set(TRIBBLE_ARM, TA_JUMP, .3);
 }
-void move_basket(int target, boolean up)//target position, whether or not it is going up-->will give more power
+void move_block_arm(int target)
 {
-	printf("moving the basket...");
-	if(up)//run with more power and a pid loop
-	{
-		int goal_speed=250;//ticks per second
-		float curr_power=90.;//the power it's going at now
-		int last_pos=-999;//last position-->-999 signifies the first time through the loop
-		int direction=sign(gmpc(BASKET)-target);//+1 or -1
-		motor(BASKET, round(curr_power*direction));//start it moving for a short time to get up to speed
-		msleep(200);
-		while((gmpc(BASKET)-target)*direction<0)//wait until it makes it to the target
-		{
-			if(last_pos!=-999)//has gone through the loop before
-			{
-				int curr_speed=my_abs(gmpc(BASKET)-last_pos)/.005;//.01 seconds between each loop
-				curr_power+=(goal_speed-curr_speed)*.5;//speeds up or slows down if it's not near the goal speed
-			}
-			last_pos=gmpc(BASKET);//for the next time through the loop
-			motor(BASKET, round(curr_power*direction));
-			msleep(5);
-		}
-		off(BASKET);
-	}
-	else//run on low power
-	{
-		int direction=sign(gmpc(BASKET)-target);//+1 or -1
-		motor(BASKET, 10*direction);//run + or - depending on what direction it's going
-		WAIT((gmpc(BASKET)-target)*direction<0);//wait until it makes it to the target
-		off(BASKET);
-	}
+	int dir=sign(target-gmpc(BLOCK_ARM));//direction it has to move in (+1 or -1)
+	if(dir==0)//is already at target
+		return;//-->exit
+	printf("moving the block arm...");
+	if(dir==sign(BLA_UP))//is moving up-->needs more power
+		motor(BLOCK_ARM, 60*dir);
+	else//moving down-->doesn't need that much power
+		motor(BLOCK_ARM, 35*dir);
+	LIMIT((target-gmpc(BLOCK_ARM))*dir<=0, 1500);//wait until it reaches the position (timeout after 1.5 seconds)
+	off(BLOCK_ARM);
 	printf("done!\n");
-}
-boolean hold=false;//whether or not the basket is holding
-int hold_target;//the target for basket_pid
-void basket_pid()//the actual pid loop for holding the basket up-->called from hold_basket()
-{
-	WAIT(hold==true);//wait until it has to hold
-	if(my_abs(gmpc(BASKET)-hold_target)>50)//is off of the target-->get there first
-		move_basket(hold_target, true);//better to assume true if false than vice versa
-	while(hold==true)//keep holding while you need to
-	{
-		int power=10;//10 is base-->makes sure it won't fall down
-		int error=hold_target-gmpc(BASKET);
-		if(error*sign(BASKET_UP)>5)//needs to move up
-			power=90;//moves it towards position
-		else if(error*sign(BASKET_UP)<-5)//needs to move down
-			power=-10;
-		power*=sign(BASKET_UP);//reverse the power if up is negative
-		motor(BASKET, power);
-		msleep(10);
-	}
-	motor(BASKET, 0);
-	basket_pid();//restarts-->b/c exited loop, hold is false-->will wait until true again
-}
-void hold_basket(int target)//holds the basket at a specified position
-{
-	hold_target=target;
-	hold=true;//will start the loop
-}
-void release_basket()//lets the basket do whatever (ends the pid loop)
-{
-	hold=false;//will end the loop, make it wait until it's true again
 }
 void servo_set(int port,int end,float time)
 {//position is from 0-2047
