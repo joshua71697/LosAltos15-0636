@@ -17,23 +17,26 @@
 #define BASKET_ARM 1
 #define BA_START 1100
 #define BA_DOWN 1400
-#define BA_UP 200
+#define BA_UP 100
 #define BA_MID 600//high enough to let the block arm in
 #define TRIBBLE_CLAW 2
-#define TC_OPEN 1100
-#define TC_PART_OPEN 600//only part way open
-#define TC_CLOSE 0
+#define TC_OPEN 1500
+#define TC_PART_OPEN 700//only part way open
+#define TC_CLOSE 250
 #define TRIBBLE_ARM 3
-#define TA_UP 450
-#define TA_DOWN 1550
+#define TA_UP 500
+#define TA_DOWN 1500
 #define TA_JUMP 1000//position to get over the pipe (slightly raised)
-#define TA_START 1900//pushes against the ground to shift the robot forward
+#define TA_START 1950//pushes against the ground to shift the robot forward
 #define BLOCK_ARM 1//motor
 #define BLA_DOWN 0
 #define BLA_START -330//all the way up-->under the basket
 #define BLA_UP -250//dumping position
 #define BLA_LIFT -50//lifted up right after it got the blocks
 #define BLA_MID -175//out of the way of the basket
+#define LIGHT_SENSOR 0//sensor port
+#define LTOUCH digital(14)//
+#define RTOUCH digital(15)//
 
 void move_block_arm(int target);
 void servo_set(int port,int end,float time);

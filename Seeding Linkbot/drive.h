@@ -8,7 +8,7 @@
 #define MOT_LEFT 0
 #define MOT_RIGHT 3
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459//yea, get rekt
-#define R_DIST_CONST .98//distance constants-->how far you tell it to move/how far it actually moves
+#define R_DIST_CONST .95//distance constants-->how far you tell it to move/how far it actually moves
 #define L_DIST_CONST 1.//
 #define PID_CONST .4//how much the motor speeds change based off how far off each motor is
 #define END_THRESHOLD 460.//at what point the "end" starts-->460 is 1/2 turn (~4 inches for the standard wheels)
@@ -40,6 +40,27 @@ void physical_squareup(boolean forward)//true means square up on the front, fals
 	motor(MOT_RIGHT, 40*direction);
 	msleep(1000);
 	drive_off();
+}
+
+void back_squareup()//squares up with the touch sensors on the back
+{
+	float start_time=curr_time();
+	motor(MOT_LEFT, -40);
+	motor(MOT_RIGHT, -40);
+	while((!RTOUCH||!LTOUCH)&&curr_time()-start_time<3)//while not squared up (with a 3 second timeout)
+	{
+		if(RTOUCH)
+			off(MOT_RIGHT);
+		else
+			motor(MOT_RIGHT, -40);
+		if(LTOUCH)
+			off(MOT_LEFT);
+		else
+			motor(MOT_LEFT, -40);
+		msleep(10);
+	}
+	off(MOT_LEFT);
+	off(MOT_RIGHT);
 }
 
 void test_driving()
