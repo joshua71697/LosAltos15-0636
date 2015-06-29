@@ -15,9 +15,9 @@
 #define RIGHT(distance,radius); left(distance,radius);
 #define LEFT(distance,radius); right(distance,radius);
 
-/*****ISSUES********************
+/******************ISSUES********************
 Needs to get botguy and far side
-******ISSUES*******************/
+*******************ISSUES*******************/
 
 void squareup(power,time){
 	motor(0,power);
@@ -32,7 +32,7 @@ void servo_setup(){
 	enable_servos();
 }
 void servo_drive_pos(){
-	set_servo_position(ARM,ARM_UP);
+	set_servo_position(ARM,ARM_UP+100);
 	msleep(500);
 	set_servo_position(CLAWL,CLAW_UP);
 	msleep(500);
@@ -92,11 +92,12 @@ void routine(){
 	/*===Reposition===*/
 	forward(5);
 	RIGHT(80,0);
-	squareup(80,3);
+	squareup(80,1);
 	
 	/*===Botguy===*/
 	thread going=thread_create(arms_down_slow);
 	thread_start(going);
+	
 	backward(180);
 	set_servo_position(ARM,ARM_UP);
 	msleep(500);
