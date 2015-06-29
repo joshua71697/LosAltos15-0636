@@ -8,15 +8,15 @@
 #define BLOCK_ARM_UP_SPEED -100
 #define BLOCK_ARM_DOWN_SPEED 100
 #define BLOCK_ARM_SPEED 100
-#define BLOCK_ARM_UP_POS -500
-#define BLOCK_ARM_HOVER_POS -150
-#define BLOCK_ARM_MID_POS -60
+#define BLOCK_ARM_UP_POS -6700
+#define BLOCK_ARM_HOVER_POS -1000
+#define BLOCK_ARM_MID_POS -2000
 //-2700 is straight up
 //this position is relative to down being 0
 
-#define BLOCK_CLAW 3
-#define BLOCK_CLAW_CLOSED 1600
-#define BLOCK_CLAW_OPEN 300
+#define BLOCK_CLAW 2
+#define BLOCK_CLAW_CLOSED 900
+#define BLOCK_CLAW_OPEN 2047
 
 
 #define PING_GATE 0
@@ -27,6 +27,7 @@
 #define RIGHT_TOUCH 15
 #define LEFT_TOUCH 14
 #define LIGHT_START 0
+#define LEVER_TOUCH 15
 
 //menu
 #define A 0
@@ -44,217 +45,7 @@
 #define FS 500
 #define TS 100
 
-void deploy()
-{
-	enable_servos();
-	set_servo_position(PING_GATE, PING_GATE_OPEN);
-	msleep(2500);
-	
-}
-void printMotorPos(int port)
-{
-	int pos = get_motor_position_counter(port);
-	pos = get_motor_position_counter(PING_ARM);
-	printf("\n pos: %d", pos);	
-}
-void moveMotor(int port, int speed, int goalPos)
-{
-	motor(port, speed);
-	clear_motor_position_counter(port);
-	int pos = get_motor_position_counter(port);
-	if ( goalPos > 0 )
-	{
-		while( pos < goalPos )
-		{
-			pos = get_motor_position_counter(port);
-			printMotorPos(port);
-		}
-	}
-	else 
-	{
-		while( pos > goalPos )
-		{
-			pos = get_motor_position_counter(port);
-			printMotorPos(port);
-		}
-	}
-	ao();
-	msleep(500);
-}
-void blockArmUp()
-{
-	moveMotor(BLOCK_ARM, BLOCK_ARM_UP_SPEED, BLOCK_ARM_UP_POS);
-	move_relative_position(BLOCK_ARM, BLOCK_ARM_UP_SPEED*10, BLOCK_ARM_UP_POS); 
-	msleep(2000);
-}
-void pingArmUp()
-{
-	motor(PING_ARM, PING_ARM_UP_SPEED);
-	clear_motor_position_counter(PING_ARM);
-	int pos = get_motor_position_counter(PING_ARM);
-	while( pos < PING_ARM_UP_POS )
-	{
-		pos = get_motor_position_counter(PING_ARM);
-		printf("\n pos: %d", pos);
-	}
-	ao();
-	msleep(500);
-}
-void blockArmDown()
-{
-	move_relative_position(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED*10, -BLOCK_ARM_UP_POS); 
-	msleep(2000);
-}
-void pingArmDown()
-{
-	motor(PING_ARM, PING_ARM_DOWN_SPEED);
-	clear_motor_position_counter(PING_ARM);
-	int pos = get_motor_position_counter(PING_ARM);
-	while( pos > PING_ARM_DOWN_POS )
-	{
-		pos = get_motor_position_counter(PING_ARM);
-		printf("\n pos: %d", pos);
-	}
-	ao();
-	msleep(1000); // longer
-}
-void timeBlockDown(int time)
-{
-	create_block();
-	motor(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED);
-	msleep(time);
-	off(BLOCK_ARM);
-}
-void timeBlockUp(int time)
-{
-	create_block();
-	motor(BLOCK_ARM, BLOCK_ARM_UP_SPEED);
-	msleep(time);
-	off(BLOCK_ARM);
-}
-void shake(int count)
-{
-	int i = 0;
-	backward_time(2000,SS);
-	create_forward(1,NS);
-	while (i < count)
-	{
-		//create_forward(1,FS);
-		//create_backward(1,FS);
-		create_right(1,1,TS);
-		create_left(1,1,TS);	
-		i++;
-	}
-	create_block();
-}
-//helper method for "scorePing()"
-void upDown()
-{
-	msleep(500);
-	pingArmUp();
-	create_block();
-	create_forward(3.5,SS);
-	create_block();
-	msleep(500);
-	pingArmDown();
-}
-void scorePing()
-{
-	upDown();
-	create_forward(7.5,SS);
-	create_block();
-	msleep(500);
-}
-int menu()
-{
-	printf("A for testing, B for main\n");
-	int button = getabcbutton();
-	if (button == A)
-	{
-		printf("What do you want to test?\n");
-		printf("  A for ping arm \n  B for block arm\n  C for drive");
-		while(1)
-		{
-			button = getabcbutton();
-			msleep(500);
-			if (button == A)
-			{
-				printf("\n=========\n");
-				printf("  A for ping arm up\n  B for ping arm down");
-				button = getabcbutton();
-				if (button == A)
-				pingArmUp();
-				else if (button == B)
-				pingArmDown();
-			}
-			else if (button == B)
-			{
-				printf("\n=========\n");
-				printf("  A for block arm up\n  B for block arm down");
-				button = getabcbutton();
-				if (button == A)
-				blockArmUp();
-				else if (button == B)
-				blockArmDown();
-			}
-			else if (button == C)
-			{ 
-				printf("\n=========\n");
-				printf("  A for forward\n  B backward\n  C for right spin");
-				button = getabcbutton();
-				create_connect();
-				if (button == A)
-				create_drive_direct(100,100);
-				else if (button == B)
-				create_drive_direct(-100,-100);
-				else if (button == B)
-				create_drive_direct(-100,100);
-			}
-		}
-		//testing code here.
-		return TESTING;
-	}
-	else if (button == B)
-	{
-		printf("Running in main\n");
-		return MAIN;
-	}
-	else if (button == C)
-	{
-		printf("Running ONLY SECOND HALF");
-		return HALF;
-	}
-	
-}
 
-
-void init()
-{
-	printf("\n init");
-	// wait_for_light(LIGHT_START);
-	//shut_down_in(119.5);
-	clear_motor_position_counter(BLOCK_ARM);
-	clear_motor_position_counter(PING_ARM);
-	printf("\n asdfjkl");
-	enable_servos();
-	set_servo_position(PING_GATE, PING_GATE_CLOSED);
-	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_OPEN);
-	printf("\n 12312312");
-	msleep(200);
-	create_connect();
-	printf("\n nmojimoknjimoknij");
-	backward_time(1000,SS); //square up first.
-}
-void blockClawClose()
-{
-	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_CLOSED);
-	msleep(300);
-}
-void blockClawOpen()
-{
-	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_OPEN);
-	msleep(300);
-}
 
 void cb()
 {
@@ -395,17 +186,7 @@ void servo_set(int port,int end,float time)//,float increment)
 	set_servo_position(port,end);
 }
 
-//camera stuff
 
-int cam_area(int channel){//returns largest blob in channel, or 0 if none
-	if (get_object_count(channel) > 0){
-		return get_object_area(channel,0);
-	}
-	return 0;
-}
-void update_wait(){//updates the camera, and waits until success
-	while(!camera_update()) msleep(1);
-}
 
 int currstate;
 #define state(State) if (currstate == State)
@@ -419,7 +200,7 @@ int currstate;
 	i = -1;
 	while (!strcmp(menu[++i].name,"FIN")){
 	if (menu[i].snum==State){
-	nowstr(menu[i].name);
+nowstr(menu[i].name);
 return;
 }
 }
@@ -428,15 +209,6 @@ now();
 #endif
 
 
-int getabbutton(){//returns 0,1 on a,b
-	WAIT(!(a_button() || b_button()));
-	WAIT(a_button() || b_button());
-	if (a_button()) return 0;
-	if (b_button()) return 1;
-	printf("ERROR!");beep();
-	msleep(2000);beep();
-	return 0;//if something broke
-}
 int getabcbutton(){//returns 0,1,2 on a,b,c
 	WAIT(!(a_button() || b_button() || c_button()));
 	WAIT(a_button() || b_button() || c_button());
@@ -463,3 +235,238 @@ void shutdownin(float time)//cause raisins.
 	thread tw=thread_create(wait_shutdown);
 	thread_start(tw);
 }*/
+void blockArmDown()
+{
+	motor(BLOCK_ARM,BLOCK_ARM_DOWN_SPEED);
+	while(! (digital(LEVER_TOUCH)) )
+		msleep(1);
+	ao();
+}
+void deploy()
+{
+	enable_servos();
+	set_servo_position(PING_GATE, PING_GATE_OPEN);
+	msleep(2500);
+}
+void printMotorPos(int port)
+{
+	int pos = get_motor_position_counter(port);
+	pos = get_motor_position_counter(port);
+	printf("\n pos: %d", pos);	
+}
+void moveMotor(int port, int speed, int goalPos)
+{
+	motor(port, speed);
+	clear_motor_position_counter(port);
+	int pos = get_motor_position_counter(port);
+	if ( goalPos > 0 )
+	{
+		while( pos < goalPos )
+		{
+			pos = get_motor_position_counter(port);
+			printMotorPos(port);
+		}
+	}
+	else 
+	{
+		while( pos > goalPos )
+		{
+			pos = get_motor_position_counter(port);
+			printMotorPos(port);
+		}
+	}
+	ao();
+	msleep(500);
+}
+void blockArmUp()
+{
+	moveMotor(BLOCK_ARM, BLOCK_ARM_UP_SPEED, BLOCK_ARM_UP_POS);
+	msleep(2000);
+}
+void pingArmUp()
+{
+	motor(PING_ARM, PING_ARM_UP_SPEED);
+	clear_motor_position_counter(PING_ARM);
+	int pos = get_motor_position_counter(PING_ARM);
+	while( pos < PING_ARM_UP_POS )
+	{
+		pos = get_motor_position_counter(PING_ARM);
+		printf("\n pos: %d", pos);
+	}
+	ao();
+	msleep(500);
+}
+
+void pingArmDown()
+{
+	motor(PING_ARM, PING_ARM_DOWN_SPEED);
+	clear_motor_position_counter(PING_ARM);
+	int pos = get_motor_position_counter(PING_ARM);
+	while( pos > PING_ARM_DOWN_POS )
+	{
+		pos = get_motor_position_counter(PING_ARM);
+		printf("\n pos: %d", pos);
+	}
+	ao();
+	msleep(1000); // longer
+}
+void timeBlockDown(int time)
+{
+	create_block();
+	motor(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED);
+	msleep(time);
+	off(BLOCK_ARM);
+}
+void timeBlockUp(int time)
+{
+	create_block();
+	motor(BLOCK_ARM, BLOCK_ARM_UP_SPEED);
+	msleep(time);
+	off(BLOCK_ARM);
+}
+void shake(int count)
+{
+	int i = 0;
+	backward_time(2000,SS);
+	create_forward(1,NS);
+	while (i < count)
+	{
+		//create_forward(1,FS);
+		//create_backward(1,FS);
+		create_right(1,1,TS);
+		create_left(1,1,TS);	
+		i++;
+	}
+	create_block();
+}
+//helper method for "scorePing()"
+void upDown()
+{
+	msleep(500);
+	pingArmUp();
+	create_block();
+	create_forward(3.5,SS);
+	create_block();
+	msleep(500);
+	pingArmDown();
+}
+void scorePing()
+{
+	upDown();
+	create_forward(7.5,SS);
+	create_block();
+	msleep(500);
+}
+int menu()
+{
+	printf("A for testing, B for main\n");
+	int button = getabcbutton();
+	if (button == A)
+	{
+		printf("What do you want to test?\n");
+		printf("  A for ping arm \n  B for block arm\n  C for drive");
+		while(1)
+		{
+			button = getabcbutton();
+			msleep(500);
+			if (button == A)
+			{
+				printf("\n=========\n");
+				printf("  A for ping arm up\n  B for ping arm down");
+				button = getabcbutton();
+				if (button == A)
+				pingArmUp();
+				else if (button == B)
+				pingArmDown();
+			}
+			else if (button == B)
+			{
+				printf("\n=========\n");
+				printf("  A for block arm up\n  B for block arm down");
+				button = getabcbutton();
+				if (button == A)
+				blockArmUp();
+				else if (button == B)
+				blockArmDown();
+			}
+			else if (button == C)
+			{ 
+				printf("\n=========\n");
+				printf("  A for forward\n  B backward\n  C for right spin");
+				button = getabcbutton();
+				create_connect();
+				if (button == A)
+				create_drive_direct(100,100);
+				else if (button == B)
+				create_drive_direct(-100,-100);
+				else if (button == B)
+				create_drive_direct(-100,100);
+			}
+		}
+		//testing code here.
+		return TESTING;
+	}
+	else if (button == B)
+	{
+		printf("Running in main\n");
+		return MAIN;
+	}
+	else if (button == C)
+	{
+		printf("Running ONLY SECOND HALF");
+		return HALF;
+	}
+	
+}
+
+
+void init()
+{
+	printf("\n init");
+	clear_motor_position_counter(BLOCK_ARM);
+	clear_motor_position_counter(PING_ARM);
+	enable_servos();
+	set_servo_position(PING_GATE, PING_GATE_CLOSED);
+	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_OPEN);
+	msleep(200);
+	blockArmDown();
+	disable_servo(PING_GATE);
+	create_connect();
+	backward_time(1000,SS); //square up first.
+	// wait_for_light(LIGHT_START);
+	//shut_down_in(119.5);
+}
+void blockClawClose()
+{
+	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_CLOSED);
+	msleep(300);
+}
+void blockClawOpen()
+{
+	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_OPEN);
+	msleep(300);
+}
+void dropOffBlocks()
+{
+	create_right(85,1,TS);
+	create_block();
+	backward_time(2000,SS); // square up with side wall
+	
+	create_forward(15,NS);
+	create_right(130,1,TS);
+	create_backward(11,NS);
+	create_block();
+	
+	blockArmUp();
+	create_backward(3,SS);
+	create_block();
+	blockClawOpen();
+	//create_backward(2,NS);
+	//create_forward(2,NS);
+	//create_backward(2,NS);
+	
+	create_block();
+	blockClawClose();
+	timeBlockDown(3500);
+}
+

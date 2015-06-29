@@ -16,30 +16,43 @@ int main()
 	init();
 	blockClawClose();
 	timeBlockUp(1800);
-	create_forward(15,NS);
+	create_drive_direct_dist(NS*.95, NS, 21*MM_TO_INCH);
 	create_block();
-	create_drive_direct_dist(NS*.98, NS, 41*MM_TO_INCH);
+	
+	
+	
+	//dropOffBlocks();
+	//create_forward(5,NS);
+	//create_right(30,1,TS);
+	//create_block();
+	//backward_time(2000,SS);
+	
+	
+	
+	
+	//create_right(85,TS);
+	//backward_time(2000,SS);
+	
+	
+	
+	create_drive_direct_dist(NS, NS*.98, 38*MM_TO_INCH);
 	create_block();
 	
 	
 	timeBlockDown(1500);
 	blockClawOpen();
-	create_forward(10,SS);
+	create_forward(5,SS);
 	create_block();	
 	blockClawClose();
 	
 	timeBlockUp(1800);
 	
-	
-	create_backward(40,NS);
-	create_right(90,1,TS);
-	create_block();
-	backward_time(3000,SS);
-	
-	
-	
+	create_backward(41,NS);
+dropOffBlocks();
+	create_forward(10,NS);
 	
 	create_block();
+	
 	
 }
 

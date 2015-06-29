@@ -21,6 +21,10 @@
 #define HELPER_MOTOR_UP_SPEED 100
 #define HELPER_MOTOR_DOWN_SPEED -100
 
+#define IGUS 3
+#define IGUS_OUT_SPEED -100
+#define IGUS_IN_SPEED 100
+
 #define A 0
 #define B 1
 #define C 2
