@@ -17,6 +17,7 @@
 #define CLAW_OPEN 1550
 #define CLAW_UP 1100
 #define CLAW_DOWN 525
+#define CLAW_BOTGUY 750
 #define ARM_UP 1500
 #define ARM_DOWN 800
 
@@ -37,159 +38,7 @@ float my_abs(float input)//because apparently kipr broke abs...
 		return -input;
 	return input;
 }
-/*void change_b_button(int digit)//makes the b button the right digit-->only really useful for input_float and input_int
-{
-	if(digit==0)
-		set_b_button_text("0");
-	else if(digit==1)
-		set_b_button_text("1");
-	else if(digit==2)
-		set_b_button_text("2");
-	else if(digit==3)
-		set_b_button_text("3");
-	else if(digit==4)
-		set_b_button_text("4");
-	else if(digit==5)
-		set_b_button_text("5");
-	else if(digit==6)
-		set_b_button_text("6");
-	else if(digit==7)
-		set_b_button_text("7");
-	else if(digit==8)
-		set_b_button_text("8");
-	else//9
-		set_b_button_text("9");
-}
-float input_float(int x, int y)//x and y are where the display_printf starts
-{
-	int digits=0;//how many digits have been inputted
-	int curr_digit=0;//what number is selected right now
-	float curr_number=0;//current output
-	int digits_after_dec=-1;//number of digits after the decimal point-->-1 means no decimal point yet
-	extra_buttons_show();
-	set_a_button_text("-");//move curr_digit down by one
-	set_c_button_text("+");//up
-	set_x_button_text("backspace");//delete the last digit
-	set_y_button_text(".");//decimal point
-	set_z_button_text("enter");//done with input
-	while(1)
-	{
-		change_b_button(curr_digit);//I have to do this the hard way because there's no good way to convert between ints and strings...
-		WAIT(a_button()||b_button()||c_button()||x_button()||y_button()||z_button());
-		if(a_button())
-			curr_digit--;//I'll sanitize the result at the end of the loop
-		else if(b_button())
-		{
-			if(digits_after_dec<0)//no dec point yet
-			{
-				curr_number*=10;
-				curr_number+=(float)(curr_digit);
-			}
-			else//has a dec point
-			{
-				curr_number+=((float)(curr_digit))/exp10(digits_after_dec+1);//trust me, it works
-				digits_after_dec++;//has an extra digit after the decimal point
-			}
-			display_printf(x+digits, y, "%d", curr_digit);
-			digits++;
-		}
-		else if(c_button())
-			curr_digit++;
-		else if(x_button())
-		{
-			if(digits>0)//has a digit to delete-->otherwise, will ignore the button tap
-			{
-				if(digits_after_dec>0)//deleting a digit after the dec point
-				{
-					digits_after_dec--;
-					curr_number=((float)((int)(curr_number*exp10(digits_after_dec))))/exp10(digits_after_dec);//don't question it...
-				}
-				else if(digits_after_dec==0)//deleting the decimal point
-				{
-					digits_after_dec=-1;//no more dec point
-				}
-				else//deleting a digit with no dec point
-				{
-					curr_number=(float)((int)(curr_number/10));//again, it works, just go with it
-				}
-				digits--;
-				display_printf(x+digits, y, " ");//clear the input it deleted
-			}
-		}
-		else if(y_button())
-		{
-			if(digits_after_dec<0)//doesn't have a decimal point yet-->can add one
-			{//if not, will ignore button tap
-				if(digits==0)//no digits yet-->add a leading 0
-				{
-					display_printf(x,y,"0");
-					digits=1;
-				}
-				display_printf(x+digits, y, ".");
-				digits_after_dec=0;//has a dec, but no numbers after it yet
-				digits++;//counts as a digit for the purposes of printing in the right locations
-			}
-		}
-		else//z
-		{
-			if(digits>0)//has put in a number-->if not, can't exit, so will ignore button tap
-				break;//exit the loop-->get to the return
-		}
-		curr_digit+=10;//will make it positive, if was already positive, will deal with that in the next step
-		curr_digit=curr_digit%10;//this will get in in the range of 0-9
-		WAIT(!(a_button()||b_button()||c_button()||x_button()||y_button()||z_button()));
-		msleep(50);
-	}
-	return curr_number;
-}
-int input_int(int x, int y)//pretty much the same as input_float...
-{
-	int digits=0;//how many digits have been inputted
-	int curr_digit=0;//what number is selected right now
-	int curr_number=0;//current output
-	extra_buttons_show();
-	set_a_button_text("-");//move curr_digit down by one
-	set_c_button_text("+");//up
-	set_x_button_text("backspace");//delete the last digit
-	set_y_button_text("");//nothing-->can't have a decimal point
-	set_z_button_text("enter");//done with input
-	while(1)
-	{
-		change_b_button(curr_digit);//I have to do this the hard way because there's no good way to convert between ints and strings...
-		WAIT(a_button()||b_button()||c_button()||x_button()||z_button());
-		if(a_button())
-			curr_digit--;//I'll sanitize the result at the end of the loop
-		else if(b_button())
-		{
-			curr_number*=10;
-			curr_number+=(float)(curr_digit);
-			display_printf(x+digits, y, "%d", curr_digit);
-			digits++;
-		}
-		else if(c_button())
-			curr_digit++;
-		else if(x_button())
-		{
-			if(digits>0)//has a digit to delete-->otherwise, will ignore the button tap
-			{
-				curr_number=curr_number/10;//casts to an int automatically, cause both are ints
-				digits--;
-				display_printf(x+digits, y, " ");//clear the input it deleted
-			}
-		}
-		else//z
-		{
-			if(digits>0)//has put in a number-->if not, can't exit, so will ignore button tap
-				break;//exit the loop-->get to the return
-		}
-		curr_digit+=10;//makes it positive; if was already positive, will be undone in the next step
-		curr_digit=curr_digit%10;//this will get in in the range of 0-9
-		WAIT(!(a_button()||b_button()||c_button()||x_button()||z_button()));
-		msleep(50);
-	}
-	return curr_number;
-}
-*/
+
 //LIGHT START
 void light_start(int sensor)
 {
@@ -231,16 +80,6 @@ void light_start(int sensor)
 	while(light_s() > avg && !(c_button()))
 	{
 		msleep(50);
-	}
-}
-
-void brick()//the title says it all...
-{
-	while(1)
-	{
-		printf("%d", rand());
-		//uncomment the next line only if you're a wimp...or don't actually want to brick the link XD
-		//msleep(1);
 	}
 }
 
@@ -306,27 +145,6 @@ int cam_area(int channel){//returns largest blob in channel, or 0 if none
 void update_wait(){//updates the camera, and waits until success
 	while(!camera_update()) msleep(1);
 }
-
-int currstate;
-#define state(State) if (currstate == State)
-#ifndef MENUa
-   #define next(State); {currstate = State;}
-#else//If menu code is in use, print the time of each state switch
-	extern struct menuitem menu[];
-	void next(int State) {
-		int i;
-		currstate = State;
-		i = -1;
-		while (!strcmp(menu[++i].name,"FIN")){
-			if (menu[i].snum==State){
-				nowstr(menu[i].name);
-				return;
-			}
-		}
-		now();
-}
-#endif
-
 
 int getabbutton(){//returns 0,1 on a,b
 	WAIT(!(a_button() || b_button()));

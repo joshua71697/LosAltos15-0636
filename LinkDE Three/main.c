@@ -2,13 +2,14 @@
 #include "etdrive.h"
 
 /******************ISSUES********************
+Needs to extract itself from botguy scoring.
 Needs to  do far side
 *******************ISSUES*******************/
 
 void squareup(power,time){
 	motor(0,power);
 	motor(3,power);
-	msleep(time*1000);
+	msleep(time);
 	ao();
 }
 void servo_setup(){
@@ -26,7 +27,7 @@ void servo_drive_pos(){
 	msleep(500);
 }
 void get_gold(){
-	back(1,100);
+	back(1.5,100);
 	set_servo_position(CLAWOC,CLAW_OPEN);
 	msleep(1000);
 	set_servo_position(CLAWL,CLAW_DOWN);
@@ -53,7 +54,11 @@ void arms_down_slow(){
 }
 
 void test(){
-	printf("%d\n",avg_etdistance());
+	set_servo_position(CLAWOC,CLAW_OPEN);
+	set_servo_position(CLAWL,CLAW_BOTGUY);
+	set_servo_position(ARM,ARM_DOWN+200);
+	enable_servos();
+	etforward(50);
 }
 
 void routine(){
@@ -66,10 +71,10 @@ void routine(){
 	
 	/*===Gold One===*/
 	servo_drive_pos();
-	squareup(-80,1);
+	squareup(-80,1000);
 	msleep(1000);
 	etforward(32);
-	squareup(50,1);
+	squareup(50,1000);
 	get_gold();
 	
 	/*===Score Gold===*/
@@ -79,7 +84,7 @@ void routine(){
 	/*===Reposition===*/
 	forward(4,100);
 	right(90,0,100);
-	squareup(50,2);
+	squareup(50,2500);
 	
 	/*===Botguy===*/
 	thread going=thread_create(arms_down_slow);
@@ -94,20 +99,32 @@ void routine(){
 	
 	int i = 0;
 	for(i;i<3;i++){
-		etforward(10);
-		etbackward(10);
+		etforward(8);
+		etbackward(8);
 	}
 	etbackward(8);
-	set_servo_position(ARM,ARM_DOWN);
+	set_servo_position(ARM,ARM_DOWN+200);
+	set_servo_position(CLAWL,CLAW_BOTGUY);
+	set_servo_position(CLAWOC,CLAW_OPEN);
+	//set_servo_position(CLAWOC,CLAW_OPEN-550);
 	msleep(500);
-	etforward(45);
+	etforward(5);
+	//set_servo_position(CLAWL,CLAW_DOWN);
+	
+	/*===Avoid Tribbles===*/
+	etforward(40);
 	
 	/*===Cross Field===*/
-	etbackward(100);
-	squareup(-50,1);
+	etbackward_sens(24);
+	set_servo_position(ARM,ARM_DOWN);
+	set_servo_position(CLAWL,CLAW_DOWN);
+	set_servo_position(CLAWOC,CLAW_CLOSE);
+	msleep(100);
+	etbackward_sens(90);
+	squareup(-50,1000);
 	
 	/*===Gold Two===*/
-	etfoward(10);
+	etforward(10);
 	left(90,0,100);
 	
 	/*===Tail===*/
