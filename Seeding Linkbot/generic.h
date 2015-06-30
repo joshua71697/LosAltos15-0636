@@ -16,15 +16,17 @@
 #define BC_START 1400
 #define BASKET_ARM 1
 #define BA_START 1100
-#define BA_DOWN 1400
+#define BA_DOWN 1600
 #define BA_UP 100
+#define BA_JERK 300//down enough to jiggle the basket
 #define BA_MID 600//high enough to let the block arm in
 #define TRIBBLE_CLAW 2
 #define TC_OPEN 1500
 #define TC_PART_OPEN 700//only part way open
 #define TC_CLOSE 250
 #define TRIBBLE_ARM 3
-#define TA_UP 500
+#define TA_DUMP 200
+#define TA_UP 500//just enough to stop the blocks from falling everywhere
 #define TA_DOWN 1500
 #define TA_JUMP 1000//position to get over the pipe (slightly raised)
 #define TA_START 1950//pushes against the ground to shift the robot forward
@@ -288,7 +290,21 @@ void wait_till(float t)
 }
 
 //SERVOS
-void set_up()//puts all the servos in the right places to fit in the box
+void set_up_drive()//puts all the servos in the right starting places for if it's driving
+{
+	printf("basket and both arms need to be down\n");
+	printf("press black button when ready\n");
+	WAIT(side_button());
+	set_servo_position(BASKET_ARM, BA_DOWN);
+	set_servo_position(BLOCK_CLAW, BC_START);
+	set_servo_position(TRIBBLE_CLAW, TC_CLOSE);
+	cmpc(BLOCK_ARM);//down is position 0
+	enable_servos();
+	msleep(1500);//give the servos time to move (if necessary)
+	set_servo_position(TRIBBLE_ARM, TA_UP);
+	move_block_arm(BLA_UP);
+}
+void set_up_jump()//puts all the servos in the right places to fit in the box if jumping
 {
 	printf("basket and both arms need to be down.\n");
 	printf("press black button when ready.\n");
