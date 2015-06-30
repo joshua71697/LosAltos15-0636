@@ -2,7 +2,7 @@
 #define PING_ARM_UP_SPEED 100
 #define PING_ARM_DOWN_SPEED -100
 #define PING_ARM_UP_POS 1000
-#define PING_ARM_DOWN_POS (100 - PING_ARM_UP_POS) 
+#define PING_ARM_DOWN_POS (-PING_ARM_UP_POS) 
 
 #define BLOCK_ARM 2
 #define BLOCK_ARM_UP_SPEED -100
@@ -23,11 +23,10 @@
 #define PING_GATE_CLOSED 2000
 #define PING_GATE_OPEN 1047
 
-
-#define RIGHT_TOUCH 15
-#define LEFT_TOUCH 14
 #define LIGHT_START 0
-#define LEVER_TOUCH 15
+#define BLOCK_LEVER_TOUCH 15
+#define PING_LEVER_TOUCH 14
+
 
 //menu
 #define A 0
@@ -238,7 +237,7 @@ void shutdownin(float time)//cause raisins.
 void blockArmDown()
 {
 	motor(BLOCK_ARM,BLOCK_ARM_DOWN_SPEED);
-	while(! (digital(LEVER_TOUCH)) )
+	while(! (digital(BLOCK_LEVER_TOUCH)) )
 		msleep(1);
 	ao();
 }
@@ -286,13 +285,15 @@ void blockArmUp()
 void pingArmUp()
 {
 	motor(PING_ARM, PING_ARM_UP_SPEED);
+	double time = curr_time();
 	clear_motor_position_counter(PING_ARM);
 	int pos = get_motor_position_counter(PING_ARM);
-	while( pos < PING_ARM_UP_POS )
+	while( ( pos < PING_ARM_UP_POS ) && ( curr_time() - time < 3.0) )
 	{
 		pos = get_motor_position_counter(PING_ARM);
 		printf("\n pos: %d", pos);
 	}
+	printf(".... that took: %f", curr_time() - time);
 	ao();
 	msleep(500);
 }
@@ -300,15 +301,9 @@ void pingArmUp()
 void pingArmDown()
 {
 	motor(PING_ARM, PING_ARM_DOWN_SPEED);
-	clear_motor_position_counter(PING_ARM);
-	int pos = get_motor_position_counter(PING_ARM);
-	while( pos > PING_ARM_DOWN_POS )
-	{
-		pos = get_motor_position_counter(PING_ARM);
-		printf("\n pos: %d", pos);
-	}
+	while(! (digital(PING_LEVER_TOUCH)) )
+		msleep(1);
 	ao();
-	msleep(1000); // longer
 }
 void timeBlockDown(int time)
 {
@@ -345,7 +340,7 @@ void upDown()
 	msleep(500);
 	pingArmUp();
 	create_block();
-	create_forward(3.5,SS);
+	create_forward(4,SS);
 	create_block();
 	msleep(500);
 	pingArmDown();
@@ -435,6 +430,7 @@ void init()
 	backward_time(1000,SS); //square up first.
 	// wait_for_light(LIGHT_START);
 	//shut_down_in(119.5);
+	start();
 }
 void blockClawClose()
 {
@@ -461,10 +457,7 @@ void dropOffBlocks()
 	create_backward(3,SS);
 	create_block();
 	blockClawOpen();
-	//create_backward(2,NS);
-	//create_forward(2,NS);
-	//create_backward(2,NS);
-	
+
 	create_block();
 	blockClawClose();
 	timeBlockDown(3500);
