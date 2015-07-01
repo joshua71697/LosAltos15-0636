@@ -188,3 +188,10 @@ void shutdownin(float time)//cause raisins.
 	thread tw=thread_create(wait_shutdown);
 	thread_start(tw);
 }*/
+
+void panic(){
+	int i;
+	for(i;i<4;i++){
+		beep();
+	}
+}

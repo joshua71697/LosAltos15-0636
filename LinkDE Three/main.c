@@ -27,7 +27,7 @@ void servo_drive_pos(){
 	msleep(500);
 }
 void get_gold(){
-	back(1.5,100);
+	back(1,100);
 	set_servo_position(CLAWOC,CLAW_OPEN);
 	msleep(1000);
 	set_servo_position(CLAWL,CLAW_DOWN);
@@ -52,13 +52,21 @@ void arms_down_slow(){
 	servo_set(CLAWL,CLAW_DOWN,1);
 	servo_set(ARM,ARM_DOWN,1);
 }
+void arms_down_slow_two(){
+	msleep(3000);
+	servo_set(CLAWL,CLAW_DOWN,1);
+	servo_set(ARM,ARM_DOWN,1);
+}
 
 void test(){
-	set_servo_position(CLAWOC,CLAW_OPEN);
-	set_servo_position(CLAWL,CLAW_BOTGUY);
-	set_servo_position(ARM,ARM_DOWN+200);
-	enable_servos();
-	etforward(50);
+	while(!a_button()||!b_button()||!c_button()){
+		printf("FRONT: %d",avg_etdistance());
+		printf(" - BACK:  %d\n",avg_etdistanceb());
+	}
+}
+
+void temptest(){
+	etforward_sens(100);
 }
 
 void routine(){
@@ -87,7 +95,7 @@ void routine(){
 	squareup(50,2500);
 	
 	/*===Botguy===*/
-	thread going=thread_create(arms_down_slow);
+	thread going = thread_create(arms_down_slow);
 	thread_start(going);
 	
 	etbackward(65);
@@ -103,28 +111,41 @@ void routine(){
 		etbackward(8);
 	}
 	etbackward(8);
-	set_servo_position(ARM,ARM_DOWN+200);
+	set_servo_position(ARM,ARM_DOWN+225);
 	set_servo_position(CLAWL,CLAW_BOTGUY);
 	set_servo_position(CLAWOC,CLAW_OPEN);
 	//set_servo_position(CLAWOC,CLAW_OPEN-550);
 	msleep(500);
-	etforward(5);
+	//etforward(5);
 	//set_servo_position(CLAWL,CLAW_DOWN);
 	
 	/*===Avoid Tribbles===*/
-	etforward(40);
+	right(45,0,100);//closer to 10deg turn due to weight distribution
+	msleep(500);
+	forward(8,100);
+	msleep(500);
+	left(10,0,100);
+	msleep(500);
+	etforward_sens(45);
 	
 	/*===Cross Field===*/
-	etbackward_sens(24);
+	thread going_two = thread_create(arms_down_slow_two);
+	thread_start(going_two);
+	etbackward_sens(70);
+	
+	/*etbackward_sens(24);
 	set_servo_position(ARM,ARM_DOWN);
+	msleep(200);
 	set_servo_position(CLAWL,CLAW_DOWN);
 	set_servo_position(CLAWOC,CLAW_CLOSE);
 	msleep(100);
-	etbackward_sens(90);
+	etbackward_sens(70);*/
 	squareup(-50,1000);
 	
 	/*===Gold Two===*/
 	etforward(10);
+	servo_drive_pos();
+	msleep(500);
 	left(90,0,100);
 	
 	/*===Tail===*/
