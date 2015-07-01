@@ -339,7 +339,6 @@ void upDown()
 {
 	msleep(500);
 	pingArmUp();
-	create_block();
 	create_forward(4,SS);
 	create_block();
 	msleep(500);
@@ -415,7 +414,7 @@ int menu()
 }
 
 
-void init()
+int init()
 {
 	printf("\n init");
 	clear_motor_position_counter(BLOCK_ARM);

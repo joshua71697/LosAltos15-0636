@@ -8,12 +8,11 @@
  * block arm is down - facing forward
  * block attachement on - with the two starting cubes on the robot's *right*
  * block attachment with the axels through the beam's end holes
- * otherside cubes start together, one cube distnace away from the edge
+ * otherside cubes start together, one half cube distnace away from the edge
 */
 
 int main()
 {
-	
 	init();
 	blockClawClose();
 	// timeBlockUp(800);
@@ -21,20 +20,21 @@ int main()
 	///// go to far blocks
 	create_drive_direct_dist(NS*.95, NS, 21*MM_TO_INCH);
 	create_block();	
-	create_drive_direct_dist(NS, NS*.96, 35*MM_TO_INCH);
+	create_drive_direct_dist(NS, NS*.96, 36*MM_TO_INCH);
 	create_left(15,1,TS);
 	create_block();
 	
 	///// pick up far cubes
 	// timeBlockDown(700);
 	blockClawOpen();
-	create_forward(9,SS);
+	create_forward(10,SS);
 	create_block();	
 	blockClawClose();
 	timeBlockUp(1800);
 	
 	///// go to caldera
-	create_backward(41,NS);
+	create_right(15,1,TS);
+	create_backward(43,NS);
 	create_right(85,1,TS);
 	create_block();
 	backward_time(2000,SS); // square up with side wall
@@ -54,21 +54,19 @@ int main()
 	timeBlockDown(3500);
 	blockClawOpen();
 	
+	printf("\n\nBLOCKS %d \n",curr_time());
+	
 	///// go to ping pongs 
-	create_forward(8,NS);
-	create_right(40,1,TS);
+	create_forward(28,NS);
+	create_left(140,1,TS);
 	create_block();
 	backward_time(2000,SS);
-	create_forward(17,NS);
-	create_block();
-	create_right(80,1,TS);
-	create_block();
 	pingArmUp();
 	motor(PING_ARM, PING_ARM_UP_SPEED / 2); //slowly help it in the background
-	create_right(5,1,TS);
-	create_backward(24, NS);
+	create_forward(8,NS); // this number determines how far away we will be.
+	create_left(90,1,TS);
 	create_block();
-	
+
 	/////////////////////////////////////////////////////////////////////
 	///////////////////////// SECOND HALF ///////////////////////////////
 	/////////////////////////////////////////////////////////////////////
@@ -80,7 +78,7 @@ int main()
 	create_block();
 	pingArmDown();
 	
-	create_left(10,1,TS);
+	create_left(8,1,TS);
 	create_block();
 	
 	blockArmDown(); // make sure.
@@ -104,21 +102,22 @@ int main()
 	create_block();
 	create_right(90,1,SS);
 	create_block();
-	backward_time(3000,SS); //squared up with base wall.
+	backward_time(1500,SS); //squared up with base wall.
 	pingArmUp();
 	motor(PING_ARM, PING_ARM_UP_SPEED); //tighten this a bit more.
-	msleep(1000);
-	ao();
 	create_forward(20,NS); 
-	create_left(100,1,TS);
+	create_left(70,1,TS);
+	create_forward(10,NS);
 	
 	create_block();
 	///// deploy, end, and be happy :)
+	
 	deploy();
-	create_backward(10,NS);
 	
 	create_block();
 	create_disconnect();
+	ao();
+	printf("\n\ntook %d",curr_time());
 }
 
 
