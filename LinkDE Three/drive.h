@@ -35,8 +35,8 @@
 
 #define drive_off() off(MOT_RIGHT) ;off(MOT_LEFT)
 
-#define LLIGHT analog(15)
-#define RLIGHT analog(10)
+#define LLIGHT analog(3)
+#define RLIGHT analog(4)
 #define BLACK 750
 
 void back(float distance, int power);//function declarations
@@ -44,6 +44,33 @@ void forward(float distance, int power);//
 void right(float degrees, float radius, int power);//
 void left(float degrees, float radius, int power);//
 void drive(float l_ticks, float r_ticks, float max_pwr);//
+
+/*void light_squareup(timeout){
+	float time = seconds();
+	int A, B = 0, 0;
+	motor(MOT_LEFT,power);
+	motor(MOT_RIGHT,power);
+	while((A==0||B==0)&&)(seconds()-time < timeout)){
+		if(analog_10(LIGHTr)<white){ //if right is black
+			off(MOT_RIGHT);
+			A=1;
+		}
+		else{
+			motor(MOT_RIGHT);
+			A=0;
+		}
+		if(analog_10(LIGHTl)<white){ //if left is black
+			off(MOT_LEFT);
+			B=1;
+		}
+		else{
+			motor(MOT_LEFT);
+			B=0;
+		}
+		msleep(1)
+	}
+	drive_off();
+}*/
 
 void square_back()
 {

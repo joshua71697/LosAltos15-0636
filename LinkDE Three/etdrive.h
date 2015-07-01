@@ -21,8 +21,8 @@
 #define nRIGHTb .8
 #define THRESHOLDb 3
 //forward sensative constants
-#define SPDls 90.
-#define SPDrs 90.
+#define SPDls 60.
+#define SPDrs 60.
 #define nLEFTs .5
 #define nRIGHTs .5
 #define THRESHOLDs 2
@@ -98,6 +98,36 @@ void etbackward(distance){
 
 void etforward_sens(distance){
 	int etdistance = avg_etdouble();
+	long newdist;
+	newdist = distance*INtoCM*CMtoBEMF;//conversion ratio
+	long l = gmpc(MOT_LEFT)+newdist;
+	long r = gmpc(MOT_RIGHT)+newdist;
+		
+	while(gmpc(MOT_LEFT) < l && gmpc(MOT_RIGHT) < r){
+		printf("%d", etdistance);
+		printf(" - %d",analog_et(ET));
+		if(analog_et(ET)>etdistance+THRESHOLDs)//if greater: robot is too close
+		{
+			motor(MOT_LEFT,SPDls*nLEFTs);
+			motor(MOT_RIGHT,SPDrs);
+			printf(" - TOO CLOSE\n");
+		}
+		else if(analog_et(ET)<etdistance-THRESHOLDs)//if less: robot is too far
+		{
+			motor(MOT_LEFT,SPDls);
+			motor(MOT_RIGHT,SPDrs*nRIGHTs);
+			printf(" - TOO FAR\n");
+		}
+		else{
+			motor(MOT_LEFT,SPDls);
+			motor(MOT_RIGHT,SPDrs);
+			printf(" - STRAIGHT\n");
+		}
+	}
+	drive_off();
+}
+
+void etforward_sens_pass(distance,etdistance){
 	long newdist;
 	newdist = distance*INtoCM*CMtoBEMF;//conversion ratio
 	long l = gmpc(MOT_LEFT)+newdist;

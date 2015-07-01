@@ -58,16 +58,18 @@ void arms_down_slow_two(){
 	servo_set(ARM,ARM_DOWN,1);
 }
 
-void test(){
+void temptest(){
 	while(!a_button()||!b_button()||!c_button()){
 		printf("FRONT: %d",avg_etdistance());
 		printf(" - BACK:  %d\n",avg_etdistanceb());
 	}
 }
 
-void temptest(){
-	etforward_sens(100);
+void test(){
+	line_square(1);
 }
+
+
 
 void routine(){
 	/*===Start===*/
@@ -90,7 +92,7 @@ void routine(){
 	score_gold();
 	
 	/*===Reposition===*/
-	forward(4,100);
+	//forward(4,100);
 	right(90,0,100);
 	squareup(50,2500);
 	
@@ -99,6 +101,7 @@ void routine(){
 	thread_start(going);
 	
 	etbackward(65);
+	int store_et_distance = avg_etdouble();//store for later
 	set_servo_position(ARM,ARM_UP);
 	etforward(8);
 	set_servo_position(ARM,ARM_UP-150);
@@ -115,17 +118,20 @@ void routine(){
 	set_servo_position(CLAWL,CLAW_BOTGUY);
 	set_servo_position(CLAWOC,CLAW_OPEN);
 	//set_servo_position(CLAWOC,CLAW_OPEN-550);
-	msleep(500);
+	msleep(2000);
 	//etforward(5);
 	//set_servo_position(CLAWL,CLAW_DOWN);
 	
 	/*===Avoid Tribbles===*/
-	right(45,0,100);//closer to 10deg turn due to weight distribution
-	msleep(500);
-	forward(8,100);
-	msleep(500);
-	left(10,0,100);
-	msleep(500);
+	//etforward_sens(10);
+	//right(45,0,100);//closer to 10deg turn due to weight distribution
+	//msleep(500);
+	//forward(8,100);
+	//msleep(500);
+	//left(10,0,100);
+	//msleep(500);
+	//etforward_sens(35);
+	//etforward_sens_pass(45,store_et_distance);
 	etforward_sens(45);
 	
 	/*===Cross Field===*/
