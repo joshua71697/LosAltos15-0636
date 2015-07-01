@@ -18,7 +18,7 @@
 #define BA_START 1100
 #define BA_DOWN 1600
 #define BA_UP 100
-#define BA_JERK 300//down enough to jiggle the basket
+#define BA_JERK 500//down enough to jiggle the basket
 #define BA_MID 600//high enough to let the block arm in
 #define TRIBBLE_CLAW 2
 #define TC_OPEN 1500
@@ -329,19 +329,32 @@ void ready_to_jump()//after start of round, moves out of box to get ready to jum
 	move_block_arm(BLA_UP);
 	servo_set(TRIBBLE_ARM, TA_JUMP, .3);
 }
+void tribble_claw_dump()//from claw down and closed, dumps in the basket
+{
+	if(get_servo_position(TRIBBLE_CLAW)!=TC_CLOSE)//claw isn't closed
+		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//so close it
+	servo_set(TRIBBLE_ARM, TA_DUMP, 1.2);//lift the arm (slow enough that loose tribbles don't go flying
+	msleep(500);
+	servo_set(TRIBBLE_CLAW, TC_OPEN, .4);//open to dump the tribbles
+	msleep(500);
+	servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//close and reopen to try to get them all in
+	servo_set(TRIBBLE_CLAW, TC_OPEN, .4);//(this is optional and may need to be taken out later)
+	msleep(500);
+	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .2);//get the arm out of the way
+	servo_set(TRIBBLE_ARM, TA_DOWN, .4);//
+	servo_set(TRIBBLE_CLAW, TC_OPEN, .2);//
+}
 void move_block_arm(int target)
 {
 	int dir=sign(target-gmpc(BLOCK_ARM));//direction it has to move in (+1 or -1)
 	if(dir==0)//is already at target
 		return;//-->exit
-	printf("moving the block arm...");
 	if(dir==sign(BLA_UP))//is moving up-->needs more power
 		motor(BLOCK_ARM, 60*dir);
 	else//moving down-->doesn't need that much power
 		motor(BLOCK_ARM, 35*dir);
 	LIMIT((target-gmpc(BLOCK_ARM))*dir<=0, 1500);//wait until it reaches the position (timeout after 1.5 seconds)
 	off(BLOCK_ARM);
-	printf("done!\n");
 }
 void servo_set(int port,int end,float time)
 {//position is from 0-2047
