@@ -1,0 +1,31 @@
+// Driver's Checklist for the seeding create
+
+
+1. Position Robot
+ - squared up with the back of base.
+ - create is 'one cube' away from the side
+
+2. Place far cubes 
+ - 'half a cube' away from the side
+
+3. Place near cubes
+ - two near cubes are on the line 
+ - tucked on the inside of the black pin
+ - as close to the bot as possible
+
+4. position claw
+ - claw = straight line (stretch rubber band back)
+
+5. Place ping arm
+ - make sure to avoid the LINK robot
+ - hovering
+
+5. Run "init" with the create OFF
+ - make sure both arms moved, and the string is good
+
+6. Turn on the create!!!!
+ - make sure the create backed up (is it on?)
+
+7. Lights.
+
+8. Pray

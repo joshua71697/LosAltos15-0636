@@ -15,7 +15,7 @@
 //this position is relative to down being 0
 
 #define BLOCK_CLAW 2
-#define BLOCK_CLAW_CLOSED 900
+#define BLOCK_CLAW_CLOSED 800
 #define BLOCK_CLAW_OPEN 2047
 
 
@@ -280,7 +280,6 @@ void moveMotor(int port, int speed, int goalPos)
 void blockArmUp()
 {
 	moveMotor(BLOCK_ARM, BLOCK_ARM_UP_SPEED, BLOCK_ARM_UP_POS);
-	msleep(2000);
 }
 void pingArmUp()
 {
@@ -410,9 +409,7 @@ int menu()
 		printf("Running ONLY SECOND HALF");
 		return HALF;
 	}
-	
 }
-
 
 int init()
 {
@@ -424,22 +421,25 @@ int init()
 	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_OPEN);
 	msleep(200);
 	blockArmDown();
+	pingArmDown();
+	motor(PING_ARM, PING_ARM_UP_SPEED);
+	msleep(400);
+	ao();
 	disable_servo(PING_GATE);
 	create_connect();
 	backward_time(1000,SS); //square up first.
-	// wait_for_light(LIGHT_START);
-	//shut_down_in(119.5);
+	light_start(LIGHT_START);
+	shut_down_in(119.5);
 	start();
 }
 void blockClawClose()
 {
-	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_CLOSED);
-	msleep(300);
+	servo_set(BLOCK_CLAW, BLOCK_CLAW_CLOSED ,1.5);
 }
 void blockClawOpen()
 {
 	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_OPEN);
-	msleep(300);
+	msleep(500);
 }
 void dropOffBlocks()
 {
@@ -453,10 +453,11 @@ void dropOffBlocks()
 	create_block();
 	
 	blockArmUp();
-	create_backward(3,SS);
+	create_backward(3,NS);
 	create_block();
 	blockClawOpen();
-
+	create_forward(1,FS);
+	create_backward(1,FS);
 	create_block();
 	blockClawClose();
 	timeBlockDown(3500);
