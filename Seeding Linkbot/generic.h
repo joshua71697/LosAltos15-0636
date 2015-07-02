@@ -10,7 +10,7 @@
 #define light_s() analog10(sensor)//this is used in lightstart
 
 //motors and servos
-#define BLOCK_CLAW 0
+#define BLOCK_CLAW 3
 #define BC_OPEN 150
 #define BC_CLOSE 1100
 #define BC_START 1400
@@ -24,7 +24,7 @@
 #define TC_OPEN 1500
 #define TC_PART_OPEN 700//only part way open
 #define TC_CLOSE 250
-#define TRIBBLE_ARM 3
+#define TRIBBLE_ARM 0
 #define TA_DUMP 200
 #define TA_UP 500//just enough to stop the blocks from falling everywhere
 #define TA_DOWN 1500
@@ -343,6 +343,13 @@ void tribble_claw_dump()//from claw down and closed, dumps in the basket
 	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .2);//get the arm out of the way
 	servo_set(TRIBBLE_ARM, TA_DOWN, .4);//
 	servo_set(TRIBBLE_CLAW, TC_OPEN, .2);//
+}
+void jiggle_basket()//jiggles the basket while dumping-->help stuff fall out
+{
+	msleep(1000);//let stuff fall out
+	servo_set(BASKET_ARM, BA_JERK, .1);//jerk to loosen stuff
+	servo_set(BASKET_ARM, BA_UP, .1);//
+	msleep(1000);//more time to let stuff fall out
 }
 void move_block_arm(int target)
 {

@@ -83,7 +83,7 @@ int main()
 		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//drop the claw
 		msleep(300);
 		servo_set(TRIBBLE_CLAW, TC_OPEN, .3);//open the claw the rest of the way-->ready to go
-		forward(6, 60);//move to block position
+		forward(5, 60);//move to block position
 		grab_blocks();//grab the blocks...
 		forward(20, 60);//plow the tribbles!
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .5);//grab the tribbles
@@ -97,11 +97,11 @@ int main()
 		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("first dump started at");
 		servo_set(BASKET_ARM, BA_UP, 1);//get it to the top
-		msleep(2000);//try to get the stuff to fall out
+		jiggle_basket();//try to get the stuff to fall out
 		servo_set(BASKET_ARM, BA_DOWN, 1);//bring it back
 		tribble_claw_dump();//put the tribbles in the basket
 		servo_set(BASKET_ARM, BA_UP, 1);//raise the basket
-		msleep(2000);//try to get the stuff to fall out
+		jiggle_basket();//try to get the stuff to fall out
 		servo_set(BASKET_ARM, BA_DOWN, 1);//bring it back
 		nowstr("first dump finished at");
 		move_block_arm(BLA_UP);//back to driving position
@@ -110,11 +110,15 @@ int main()
 		forward(8, 60);//plow the remaining tribbles
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
 		servo_set(TRIBBLE_ARM, TA_UP, 1);//raise the arm (to allow it to turn around)
+		time_drive(60, 60, 1500);//get towards the wall
+		physical_squareup(true);//and square up on it
+		time_drive(-60, -60, 500);//back away from the wall
 		right(180, 0, 50);//turn around
-		time_drive(-60, -60, 1500);//get towards the wall
-		physical_squareup(false);//and square up
+		physical_squareup(false);//and square up again
 		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//drop the claw
-		servo_set(TRIBBLE_CLAW, TC_OPEN, .5);//
+		msleep(200);
+		servo_set(TRIBBLE_CLAW, TC_OPEN, 1.5);//
+		msleep(200);//make sure it's in position
 		forward(22, 60);//plow the tribbles!
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .5);//grab the tribbles
 		forward(18, 60);//get across the center
@@ -126,17 +130,17 @@ int main()
 		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("second dump started at");
 		servo_set(BASKET_ARM, BA_UP, 1);//get it to the top
-		msleep(2000);//try to get the stuff to fall out
+		jiggle_basket();//try to get the stuff to fall out
 		servo_set(BASKET_ARM, BA_DOWN, 1);//bring it back
 		tribble_claw_dump();//put the tribbles in the basket
 		servo_set(BASKET_ARM, BA_UP, 1);//raise the basket
-		msleep(2000);//try to get the stuff to fall out
+		jiggle_basket();//try to get the stuff to fall out
 		servo_set(BASKET_ARM, BA_DOWN, 1);//bring the basket back
 		forward(2, 60);//push the tribbles a bit
 		back(2, 60);//get back into dump location, tribbles near edge of claw
 		tribble_claw_dump();//one last chance to get any extra tribbles that didn't make it the first time
 		servo_set(BASKET_ARM, BA_UP, 1);//
-		msleep(2000);//
+		jiggle_basket();//
 		servo_set(BASKET_ARM, BA_DOWN, 1);//just get it out of the way
 	}
 	else//drive strategy
