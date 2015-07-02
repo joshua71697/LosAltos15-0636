@@ -96,6 +96,66 @@ void etbackward(distance){
 	drive_off();
 }
 
+
+#define TOUCH 8
+void etbackward_touch(timeout){
+	
+	int etdistance = avg_etdoubleb();
+	float time = seconds();
+	
+	while(digital(TOUCH) == 0||seconds()-time>timeout){
+		printf("%d", etdistance);
+		printf(" - %d",analog_et(ETb));
+		if(analog_et(ETb)>etdistance+THRESHOLDb)//if greater: robot is too close
+		{
+			motor(MOT_LEFT,-SPDlb*nLEFT);
+			motor(MOT_RIGHT,-SPDrb);
+			printf(" - TOO CLOSE\n");
+		}
+		else if(analog_et(ETb)<etdistance-THRESHOLDb)//if less: robot is too far
+		{
+			motor(MOT_LEFT,-SPDlb);
+			motor(MOT_RIGHT,-SPDrb*nRIGHT);
+			printf(" - TOO FAR\n");
+		}
+		else{
+			motor(MOT_LEFT,-SPDlb);
+			motor(MOT_RIGHT,-SPDrb);
+			printf(" - STRAIGHT\n");
+		}
+	}
+	drive_off();
+}
+void etbackward_sens_touch(timeout){
+	
+	int etdistance = avg_etdoubleb();
+	float time = seconds();	
+	
+	while(digital(TOUCH) == 0||seconds()-time>timeout){
+		printf("%d", etdistance);
+		printf(" - %d",analog_et(ETb));
+		if(analog_et(ETb)>etdistance+THRESHOLDbs)//if greater: robot is too close
+		{
+			motor(MOT_LEFT,-SPDlbs*nLEFTbs);
+			motor(MOT_RIGHT,-SPDrbs);
+			printf(" - TOO CLOSE\n");
+		}
+		else if(analog_et(ETb)<etdistance-THRESHOLDbs)//if less: robot is too far
+		{
+			motor(MOT_LEFT,-SPDlbs);
+			motor(MOT_RIGHT,-SPDrbs*nRIGHTbs);
+			printf(" - TOO FAR\n");
+		}
+		else{
+			motor(MOT_LEFT,-SPDlbs);
+			motor(MOT_RIGHT,-SPDrbs);
+			printf(" - STRAIGHT\n");
+		}
+	}
+	drive_off();
+}
+
+
 void etforward_sens(distance){
 	int etdistance = avg_etdouble();
 	long newdist;

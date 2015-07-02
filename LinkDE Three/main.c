@@ -53,9 +53,16 @@ void arms_down_slow(){
 	servo_set(ARM,ARM_DOWN,1);
 }
 void arms_down_slow_two(){
-	msleep(3000);
-	servo_set(CLAWL,CLAW_DOWN,1);
+	msleep(2000);
+	set_servo_position(CLAWOC,CLAW_CLOSE);
+	servo_set(CLAWL,CLAW_DOWN-25,1);
 	servo_set(ARM,ARM_DOWN,1);
+}
+
+void arms_down_slow_three(){
+	set_servo_position(CLAWOC,CLAW_CLOSE);
+	servo_set(CLAWL,CLAW_DOWN-25,1);
+	servo_set(ARM,ARM_DOWN+225,1);
 }
 
 void temptest(){
@@ -66,7 +73,11 @@ void temptest(){
 }
 
 void test(){
-	line_square(1);
+	set_servo_position(CLAWL,CLAW_DOWN);
+	set_servo_position(CLAWOC,CLAW_OPEN);
+	enable_servos();
+	WAIT(a_button()||b_button()||c_button());
+	set_servo_position(CLAWOC,CLAW_CLOSE);
 }
 
 
@@ -83,7 +94,7 @@ void routine(){
 	servo_drive_pos();
 	squareup(-80,1000);
 	msleep(1000);
-	etforward(32);
+	etforward_sens(32);
 	squareup(50,1000);
 	get_gold();
 	
@@ -92,8 +103,8 @@ void routine(){
 	score_gold();
 	
 	/*===Reposition===*/
-	//forward(4,100);
-	right(90,0,100);
+	forward(4,100);
+	right(94,0,100);
 	squareup(50,2500);
 	
 	/*===Botguy===*/
@@ -101,58 +112,62 @@ void routine(){
 	thread_start(going);
 	
 	etbackward(65);
-	int store_et_distance = avg_etdouble();//store for later
 	set_servo_position(ARM,ARM_UP);
 	etforward(8);
 	set_servo_position(ARM,ARM_UP-150);
-	set_servo_position(CLAWOC,CLAW_OPEN-450);
+	set_servo_position(CLAWOC,CLAW_OPEN-475);
 	msleep(500);
 	
 	int i = 0;
 	for(i;i<3;i++){
-		etforward(8);
-		etbackward(8);
+		etforward(7+i*2);
+		etbackward(7+i*2);
 	}
 	etbackward(8);
+	
+	/*===Score Botguy===*/
+	int store_et_distance = avg_etdouble();//store for later
 	set_servo_position(ARM,ARM_DOWN+225);
 	set_servo_position(CLAWL,CLAW_BOTGUY);
-	set_servo_position(CLAWOC,CLAW_OPEN);
-	//set_servo_position(CLAWOC,CLAW_OPEN-550);
-	msleep(2000);
-	//etforward(5);
-	//set_servo_position(CLAWL,CLAW_DOWN);
+	msleep(1000);
+	etforward_sens(10);//drive over divider
 	
-	/*===Avoid Tribbles===*/
-	//etforward_sens(10);
-	//right(45,0,100);//closer to 10deg turn due to weight distribution
-	//msleep(500);
-	//forward(8,100);
-	//msleep(500);
-	//left(10,0,100);
-	//msleep(500);
-	//etforward_sens(35);
-	//etforward_sens_pass(45,store_et_distance);
-	etforward_sens(45);
+	set_servo_position(ARM,ARM_DOWN);
+	set_servo_position(CLAWL,CLAW_DOWN);
+	set_servo_position(CLAWOC,CLAW_OPEN);
+	msleep(1000);
+	etforward_sens_pass(40,store_et_distance);
 	
 	/*===Cross Field===*/
 	thread going_two = thread_create(arms_down_slow_two);
 	thread_start(going_two);
-	etbackward_sens(70);
+	etbackward_sens_touch(30);
 	
-	/*etbackward_sens(24);
-	set_servo_position(ARM,ARM_DOWN);
-	msleep(200);
-	set_servo_position(CLAWL,CLAW_DOWN);
-	set_servo_position(CLAWOC,CLAW_CLOSE);
-	msleep(100);
-	etbackward_sens(70);*/
 	squareup(-50,1000);
 	
-	/*===Gold Two===*/
+	/*===Reposition===*/
 	etforward(10);
 	servo_drive_pos();
 	msleep(500);
-	left(90,0,100);
+	right(120,0,100);
+	etbackward_sens_touch(10);
+	squareup(-50,1000);
+	
+	forward(15,100);
+	right(200,0,100);
+	etforward(15);
+	
+	/*===Gold Two===*/
+	get_gold();
+	back(20,100);
+	right(100,0,100);
+	
+	thread going_home = thread_create(arms_down_slow_three);
+	thread_start(going_home);
+	etforward(74);
+	etbackward(2);
+	set_servo_position(ARM,ARM_UP);
+	score_gold();
 	
 	/*===Tail===*/
 	disable_servos();
