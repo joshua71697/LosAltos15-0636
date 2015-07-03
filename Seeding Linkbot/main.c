@@ -25,19 +25,12 @@ int main()
 		//set_up_drive();//gets the servos and stuff in driving position
 		//test_driving();
 		reset_buttons();
-		printf("make sure the basket is down\n");
-		printf("press black button when ready\n");
+		set_up_drive();
+		printf("press black button to begin\n");
 		WAIT(side_button());
-		set_servo_position(BASKET_ARM, BA_DOWN);
-		enable_servos();
-		while(1)
-		{
-			WAIT(side_button());
-			servo_set(BASKET_ARM, BA_UP, 1);
-			WAIT(side_button());
-			servo_set(BASKET_ARM, BA_DOWN, 1);
-		}
+		printf("starting in 2 seconds...\n");
 		msleep(2000);
+		back_line_follow(30, 60);
 		return 9001;
 	}
 	WAIT(!a_button()&&!b_button());
@@ -74,21 +67,24 @@ int main()
 		physical_squareup(false);//square up on the back
 		time_drive(50, 50, 2500);//go back towards the other wall
 		physical_squareup(true);//square up on the front
-		time_drive(-50, -50, 1150);//get back to the center
+		time_drive(-50, -50, 1000);//get back to the center
 		right(87, 0, 50);//turn towards the edge
-		time_drive(-50, -50, 2500);//move towards edge
+		back_line_follow_time(50, 2500);//move towards edge
 		physical_squareup(false);//square up on the outside of the field
 		servo_set(TRIBBLE_ARM, TA_JUMP, .3);//move arm down some so it can open the claw
 		servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .3);//open the claw part way (to make sure it won't hit the edge)
-		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//drop the claw
+		servo_set(TRIBBLE_ARM, TA_START, .5);//drop the claw
 		msleep(300);
-		servo_set(TRIBBLE_CLAW, TC_OPEN, .3);//open the claw the rest of the way-->ready to go
-		forward(5, 60);//move to block position
+		servo_set(TRIBBLE_CLAW, TC_OPEN, .6);//open the claw the rest of the way-->ready to go
+		servo_set(TRIBBLE_ARM, TA_DOWN, .1);//back into drive position
+		forward(5.25, 60);//move to block position
 		grab_blocks();//grab the blocks...
 		forward(20, 60);//plow the tribbles!
-		servo_set(TRIBBLE_CLAW, TC_CLOSE, .5);//grab the tribbles
+		servo_set(TRIBBLE_CLAW, TC_CLOSE, .7);//grab the tribbles
 		forward(18, 60);//get across the center
-		servo_set(TRIBBLE_CLAW, TC_OPEN, .5);//back into plow position
+		servo_set(TRIBBLE_ARM, TA_START, .1);//push into the ground so the claw doesn't jump
+		servo_set(TRIBBLE_CLAW, TC_OPEN, .8);//back into plow position
+		servo_set(TRIBBLE_ARM, TA_DOWN, .1);//back to drive position
 		msleep(250);
 		forward(15, 60);//get to dumping location (overshoot a bit to get an extra tribble or two)
 		back(2, 60);//pull back a bit from the tribbles (the far end of the claw dumps better than the close end
@@ -109,24 +105,12 @@ int main()
 		grab_blocks();//grab the blocks...
 		forward(8, 60);//plow the remaining tribbles
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
-		servo_set(TRIBBLE_ARM, TA_UP, 1);//raise the arm (to allow it to turn around)
+		servo_set(TRIBBLE_ARM, TA_UP, 1);//raise the arm (to allow it to square up)
 		time_drive(60, 60, 1500);//get towards the wall
 		physical_squareup(true);//and square up on it
-		time_drive(-60, -60, 500);//back away from the wall
-		right(180, 0, 50);//turn around
-		physical_squareup(false);//and square up again
-		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//drop the claw
 		msleep(200);
-		servo_set(TRIBBLE_CLAW, TC_OPEN, 1.5);//
-		msleep(200);//make sure it's in position
-		forward(22, 60);//plow the tribbles!
-		servo_set(TRIBBLE_CLAW, TC_CLOSE, .5);//grab the tribbles
-		forward(18, 60);//get across the center
-		servo_set(TRIBBLE_CLAW, TC_OPEN, .5);//back into plow position
-		msleep(250);
-		forward(11, 60);//get to dumping location
-		back(2, 60);//pull back a bit from the tribbles (the far end of the claw dumps better than the close end)
-		servo_set(TRIBBLE_CLAW, TC_CLOSE, .5);//grab the tribbles so they can't escape	
+		back_line_follow(33, 60);//back up to the dumping location
+		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//put the arm down to get it out of the way
 		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("second dump started at");
 		servo_set(BASKET_ARM, BA_UP, 1);//get it to the top
@@ -178,6 +162,6 @@ void grab_blocks()//goes through the routine to pick up the blocks
 	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .4);//put the claw back down
 	servo_set(TRIBBLE_ARM, TA_DOWN, .4);//
 	msleep(200);
-	servo_set(TRIBBLE_CLAW, TC_OPEN, .3);//
+	servo_set(TRIBBLE_CLAW, TC_OPEN, .6);//
 	servo_set(BLOCK_CLAW, BC_START, .4);//needs to be in this position to drive-->very condensed
 }
