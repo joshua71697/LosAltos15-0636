@@ -78,6 +78,7 @@ int main()
 	off(BLOCK_ARM);
 	motor(PING_ARM, PING_ARM_UP_SPEED); //slowly help it in the background
 	
+	create_forward(7.25,NS); // this number determines how far away we will be.
 	create_left(90,1,TS);
 	create_backward(12,NS);
 	create_block();
