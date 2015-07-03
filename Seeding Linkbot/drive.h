@@ -23,6 +23,11 @@
 #define DEGtoRAD PI/180//convert from degrees to radians
 #define TIMEOUT 30//how many ms the timeout is per tick the motor has to travel
 
+//line following/squareup
+#define LLIGHT analog(3)
+#define RLIGHT analog(2)
+#define THRESHOLD 600//below is black, above is white
+
 #define drive_off() off(MOT_RIGHT) ;off(MOT_LEFT)
 
 void back(float distance, int power);//function declarations
@@ -30,6 +35,71 @@ void forward(float distance, int power);//
 void right(float degrees, float radius, int power);//
 void left(float degrees, float radius, int power);//
 void drive(float l_ticks, float r_ticks, float max_pwr);//
+
+
+void back_line_follow(float distance, int power)//follows a black line while going backwards, end based off distance
+{//distance in inches, power 1-100
+	if(distance==0||power==0)//sanitize results
+		return;
+	distance=my_abs(distance);//
+	power=my_abs(power);//
+	int ticks=round(distance*INtoCM*CMtoBEMF*(R_DIST_CONST+L_DIST_CONST)/2);//total number of ticks the motors go-->look at average of left and right motors
+	cmpc(MOT_LEFT);
+	cmpc(MOT_RIGHT);
+	motor(MOT_LEFT, -power);//start moving at max power
+	motor(MOT_RIGHT, -power);
+	while(my_abs(gmpc(MOT_LEFT))+my_abs(gmpc(MOT_RIGHT))<ticks*2)//go until the average ticks is the goal
+	{
+		if((LLIGHT>=THRESHOLD&&RLIGHT>=THRESHOLD)||(LLIGHT<=THRESHOLD&&RLIGHT<=THRESHOLD))
+		{//both black or both white-->lined up (probs)
+			motor(MOT_LEFT, -power);//so run at full power
+			motor(MOT_RIGHT, -power);//
+		}
+		else if(LLIGHT<=THRESHOLD)//only left is black-->left is too far forward
+		{
+			motor(MOT_LEFT, -power/2);//so slow down left
+			motor(MOT_RIGHT, -power);//
+		}
+		else//only right is black-->right is too far forward
+		{
+			motor(MOT_LEFT, -power);//so slow down right
+			motor(MOT_RIGHT, -power/2);//
+		}
+		msleep(10);
+	}
+	drive_off();
+}
+
+void back_line_follow_time(int power, int time)//following a line for a given amount of time
+{//time in ms, power 1-100
+	if(time==0||power==0)//sanitize results
+		return;
+	time=my_abs(time);//
+	power=my_abs(power);//
+	motor(MOT_LEFT, -power);//start moving at max power
+	motor(MOT_RIGHT, -power);
+	float start_time=curr_time();
+	while((curr_time()-start_time)*1000<time)//go for the amount of time specified
+	{
+		if((LLIGHT>=THRESHOLD&&RLIGHT>=THRESHOLD)||(LLIGHT<=THRESHOLD&&RLIGHT<=THRESHOLD))
+		{//both black or both white-->lined up (probs)
+			motor(MOT_LEFT, -power);//so run at full power
+			motor(MOT_RIGHT, -power);//
+		}
+		else if(LLIGHT<=THRESHOLD)//only left is black-->left is too far forward
+		{
+			motor(MOT_LEFT, -power/2);//so slow down left
+			motor(MOT_RIGHT, -power);//
+		}
+		else//only right is black-->right is too far forward
+		{
+			motor(MOT_LEFT, -power);//so slow down right
+			motor(MOT_RIGHT, -power/2);//
+		}
+		msleep(10);
+	}
+	drive_off();
+}
 
 void physical_squareup(boolean forward)//true means square up on the front, false means back
 {
@@ -40,27 +110,6 @@ void physical_squareup(boolean forward)//true means square up on the front, fals
 	motor(MOT_RIGHT, 40*direction);
 	msleep(1000);
 	drive_off();
-}
-
-void back_squareup()//squares up with the touch sensors on the back
-{
-	float start_time=curr_time();
-	motor(MOT_LEFT, -40);
-	motor(MOT_RIGHT, -40);
-	while((!RTOUCH||!LTOUCH)&&curr_time()-start_time<3)//while not squared up (with a 3 second timeout)
-	{
-		if(RTOUCH)
-			off(MOT_RIGHT);
-		else
-			motor(MOT_RIGHT, -40);
-		if(LTOUCH)
-			off(MOT_LEFT);
-		else
-			motor(MOT_LEFT, -40);
-		msleep(10);
-	}
-	off(MOT_LEFT);
-	off(MOT_RIGHT);
 }
 
 void test_driving()

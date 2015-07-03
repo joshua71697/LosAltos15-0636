@@ -17,7 +17,7 @@
 #define BASKET_ARM 1
 #define BA_START 1100
 #define BA_DOWN 1600
-#define BA_UP 100
+#define BA_UP 0
 #define BA_JERK 500//down enough to jiggle the basket
 #define BA_MID 600//high enough to let the block arm in
 #define TRIBBLE_CLAW 2
@@ -306,17 +306,16 @@ void set_up_drive()//puts all the servos in the right starting places for if it'
 }
 void set_up_jump()//puts all the servos in the right places to fit in the box if jumping
 {
-	printf("basket and both arms need to be down.\n");
+	printf("basket up, both arms down.\n");
 	printf("press black button when ready.\n");
 	WAIT(side_button());
 	set_servo_position(BLOCK_CLAW, BC_START);//initial positions
-	set_servo_position(BASKET_ARM, BA_DOWN);//
+	set_servo_position(BASKET_ARM, BA_MID);//
 	set_servo_position(TRIBBLE_ARM, TA_START);//
 	set_servo_position(TRIBBLE_CLAW, TC_CLOSE);//
 	cmpc(BLOCK_ARM);//starts at 0-->down
 	enable_servos();
 	msleep(1000);//let them get into position
-	servo_set(BASKET_ARM, BA_MID, 1);//get the basket out of the way
 	move_block_arm(BLA_START);//put the block arm up
 	msleep(500);
 	servo_set(BASKET_ARM, BA_START, .5);//put the basket into the right place
@@ -325,6 +324,7 @@ void ready_to_jump()//after start of round, moves out of box to get ready to jum
 {
 	servo_set(BASKET_ARM, BA_UP, 1);
 	move_block_arm(BLA_DOWN);
+	msleep(1500);//let teh other robot get out of teh way
 	servo_set(BASKET_ARM, BA_DOWN, 1);
 	move_block_arm(BLA_UP);
 	servo_set(TRIBBLE_ARM, TA_JUMP, .3);
