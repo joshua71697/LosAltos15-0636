@@ -423,7 +423,7 @@ int init()
 	blockArmDown();
 	pingArmDown();
 	motor(PING_ARM, PING_ARM_UP_SPEED);
-	msleep(400);
+	msleep(300);
 	ao();
 	disable_servo(PING_GATE);
 	create_connect();
