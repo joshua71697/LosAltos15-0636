@@ -55,7 +55,7 @@ int main()
 	create_forward(3,NS);
 	create_block();
 	blockClawClose(); // this knocks in the last one
-	timeBlockDown(3000);
+	motor(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED/2);
 	blockClawOpen();
 	
 	printf("\n\nBLOCKS %d \n",curr_time());
@@ -73,13 +73,11 @@ int main()
 	create_left(118,1,TS);
 	create_backward(9,NS);
 	create_block();
-	motor(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED/2);
 	backward_time(3500,SS/4);
 	pingArmUp();
 	off(BLOCK_ARM);
 	motor(PING_ARM, PING_ARM_UP_SPEED); //slowly help it in the background
 	
-	create_forward(7.5,NS); // this number determines how far away we will be.
 	create_left(90,1,TS);
 	create_backward(12,NS);
 	create_block();
@@ -117,9 +115,9 @@ int main()
 	create_block();
 	motor(PING_ARM, PING_ARM_UP_SPEED); //tighten this
 	msleep(1000);
-	create_forward(20,NS); 
-	create_left(70,1,TS);
-	create_forward(13,NS);
+	create_forward(18,NS); 
+	create_left(80,1,TS);
+	create_forward(13,FS);
 	
 	create_block();
 	///// deploy, end, and be happy :)
