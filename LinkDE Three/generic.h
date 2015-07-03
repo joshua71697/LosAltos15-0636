@@ -13,13 +13,15 @@
 #define CLAWL 1//claw lift port
 #define ARM 3// arm port
 
-#define CLAW_CLOSE 600
+#define CLAW_CLOSE 670
 #define CLAW_OPEN 1550
 #define CLAW_UP 1100
 #define CLAW_DOWN 525
 #define CLAW_BOTGUY 750
-#define ARM_UP 1500
-#define ARM_DOWN 800
+#define ARM_UP 600
+#define ARM_MID 1040
+#define ARM_DOWN 1230
+//#define ARM_BOTGUY 
 
 void move_basket(int target, boolean full);
 

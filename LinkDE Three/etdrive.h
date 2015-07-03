@@ -103,7 +103,7 @@ void etbackward_touch(timeout){
 	int etdistance = avg_etdoubleb();
 	float time = seconds();
 	
-	while(digital(TOUCH) == 0||seconds()-time>timeout){
+	while(digital(TOUCH) == 0||seconds()-time<timeout){
 		printf("%d", etdistance);
 		printf(" - %d",analog_et(ETb));
 		if(analog_et(ETb)>etdistance+THRESHOLDb)//if greater: robot is too close
