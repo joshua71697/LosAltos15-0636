@@ -12,24 +12,46 @@
 
 #define SWEEPER 2
 // in = score
-#define SWEEPER_IN 0
-#define SWEEPER_OUT 1000
-#define SWEEPER_INIT 500
+#define SWEEPER_IN 1350
+#define SWEEPER_OUT 250
+#define SWEEPER_INIT 1000
 #define SWEEPER_ALL 2000
 
 #define HELPER_MOTOR 0
 #define HELPER_MOTOR_UP_SPEED 100
 #define HELPER_MOTOR_DOWN_SPEED -100
 
-#define IGUS 3
-#define IGUS_OUT_SPEED -100
-#define IGUS_IN_SPEED 100
+#define ROLLER 2
+#define ROLLER_OUT_SPEED 100
+#define ROLLER_IN_SPEED -100
+
+#define SHOOTER 1
+#define SHOOTER_FIRE_SPEED -100
+#define SHOOTER_LOAD_SPEED 100
+
+
 
 #define A 0
 #define B 1
 #define C 2
 
 #define LIGHT 0
+
+void shoot()
+{
+	motor(SHOOTER, SHOOTER_FIRE_SPEED);
+	msleep(2000);
+	off(SHOOTER);
+}
+
+void roll()
+{
+	motor(ROLLER, ROLLER_OUT_SPEED);
+	msleep(500);
+	off(ROLLER);
+	msleep(2000);
+	shoot();
+}
 
 void touchSquareUp(int speed)
 {
@@ -256,20 +278,36 @@ int getabcbutton(){//returns 0,1,2 on a,b,c
 	msleep(2000);beep();
 	return 0;//if something broke
 }
-void sweep()
+void sweep(int num_times)
 {
 	int count = 0;
-	while (count < 4)
+	int time = 2.5;
+	while (count < num_times)
 	{
-		servo_set(SWEEPER,SWEEPER_IN, 2.5);
-		servo_set(SWEEPER,SWEEPER_OUT, 2.5);
+		servo_set(SWEEPER,SWEEPER_IN, time);
+		servo_set(SWEEPER,SWEEPER_OUT, time);
 		create_drive_direct(300,300);
 		msleep(10);
 		create_drive_direct(-300,-300);
 		msleep(10);
 		create_stop();
 		count++;
+		time*=.9; // I felt like it :)
 	}
+}
+void singleSweep(float time)
+{
+	servo_set(SWEEPER,SWEEPER_IN, time);
+	servo_set(SWEEPER,SWEEPER_OUT, time);
+}
+
+void wideShake()
+{
+	create_drive_direct(300,-300);
+	msleep(100);
+	create_drive_direct(-300,300);
+	msleep(100);
+	create_stop();
 }
 
 void shake()
