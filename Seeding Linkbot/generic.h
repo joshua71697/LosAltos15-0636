@@ -21,7 +21,7 @@
 #define BA_JERK 500//down enough to jiggle the basket
 #define BA_MID 600//high enough to let the block arm in
 #define TRIBBLE_CLAW 2
-#define TC_OPEN 1500
+#define TC_OPEN 1400
 #define TC_PART_OPEN 700//only part way open
 #define TC_CLOSE 250
 #define TRIBBLE_ARM 0
@@ -217,8 +217,8 @@ void light_start(int sensor)
 	WAIT(!(b_button() || c_button()));
 	extra_buttons_hide();
 	set_a_button_text("-");
-	set_a_button_text("arm");
-	set_a_button_text("skip");
+	set_b_button_text("arm");
+	set_c_button_text("skip");
 	int max = 0,min = 9999,curr = 0,avg = 0;
 	display_clear();
 	display_printf(0,0,"Max:");
@@ -329,6 +329,14 @@ void ready_to_jump()//after start of round, moves out of box to get ready to jum
 	move_block_arm(BLA_UP);
 	servo_set(TRIBBLE_ARM, TA_JUMP, .3);
 }
+void tribble_claw_drop()//drops the claw in a way that (hopefully) won't jump the pipe
+{//should be called when the claw is up (can be open or closed)
+	servo_set(TRIBBLE_ARM, TA_JUMP, .3);
+	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .2);
+	servo_set(TRIBBLE_ARM, TA_START, .5);//push on the ground
+	servo_set(TRIBBLE_CLAW, TC_OPEN, .5);//if this still jumps, increase the time
+	servo_set(TRIBBLE_ARM, TA_DOWN, .1);//stop pushing on the ground
+}
 void tribble_claw_dump()//from claw down and closed, dumps in the basket
 {
 	if(get_servo_position(TRIBBLE_CLAW)!=TC_CLOSE)//claw isn't closed
@@ -340,9 +348,7 @@ void tribble_claw_dump()//from claw down and closed, dumps in the basket
 	servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//close and reopen to try to get them all in
 	servo_set(TRIBBLE_CLAW, TC_OPEN, .4);//(this is optional and may need to be taken out later)
 	msleep(500);
-	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .2);//get the arm out of the way
-	servo_set(TRIBBLE_ARM, TA_DOWN, .4);//
-	servo_set(TRIBBLE_CLAW, TC_OPEN, .2);//
+	tribble_claw_drop();//get the arm out of the way
 }
 void jiggle_basket()//jiggles the basket while dumping-->help stuff fall out
 {
@@ -354,14 +360,17 @@ void jiggle_basket()//jiggles the basket while dumping-->help stuff fall out
 void move_block_arm(int target)
 {
 	int dir=sign(target-gmpc(BLOCK_ARM));//direction it has to move in (+1 or -1)
-	if(dir==0)//is already at target
-		return;//-->exit
+	int start_pos=gmpc(BLOCK_ARM);//starting position-->if it moves less than 10 ticks, try again
+	//if(dir==0)//is already at target
+		//return;//-->exit
 	if(dir==sign(BLA_UP))//is moving up-->needs more power
 		motor(BLOCK_ARM, 60*dir);
 	else//moving down-->doesn't need that much power
 		motor(BLOCK_ARM, 35*dir);
 	LIMIT((target-gmpc(BLOCK_ARM))*dir<=0, 1500);//wait until it reaches the position (timeout after 1.5 seconds)
 	off(BLOCK_ARM);
+	if(my_abs(gmpc(BLOCK_ARM)-start_pos)<10)//moved less than 10 ticks-->try again
+		move_block_arm(target);
 }
 void servo_set(int port,int end,float time)
 {//position is from 0-2047

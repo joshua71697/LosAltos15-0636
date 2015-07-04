@@ -71,12 +71,7 @@ int main()
 		right(87, 0, 50);//turn towards the edge
 		back_line_follow_time(50, 2500);//move towards edge
 		physical_squareup(false);//square up on the outside of the field
-		servo_set(TRIBBLE_ARM, TA_JUMP, .3);//move arm down some so it can open the claw
-		servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .3);//open the claw part way (to make sure it won't hit the edge)
-		servo_set(TRIBBLE_ARM, TA_START, .5);//drop the claw
-		msleep(300);
-		servo_set(TRIBBLE_CLAW, TC_OPEN, .6);//open the claw the rest of the way-->ready to go
-		servo_set(TRIBBLE_ARM, TA_DOWN, .1);//back into drive position
+		tribble_claw_drop();//put the arm down, ready to plow
 		forward(5.25, 60);//move to block position
 		grab_blocks();//grab the blocks...
 		forward(20, 60);//plow the tribbles!

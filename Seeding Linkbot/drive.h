@@ -9,7 +9,7 @@
 #define MOT_RIGHT 3
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459//yea, get rekt
 #define R_DIST_CONST 1.02//distance constants-->how far you tell it to move/how far it actually moves
-#define L_DIST_CONST 1.04//
+#define L_DIST_CONST 1.01//
 #define PID_CONST .4//how much the motor speeds change based off how far off each motor is
 #define END_THRESHOLD 460.//at what point the "end" starts-->460 is 1/2 turn (~4 inches for the standard wheels)
 #define END_SCALE .9//how much the motor slows down at the end (=final speed)
