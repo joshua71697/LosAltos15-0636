@@ -30,7 +30,7 @@ int main()
 		WAIT(side_button());
 		printf("starting in 2 seconds...\n");
 		msleep(2000);
-		back_line_follow(30, 60);
+		back_line_follow_time(60, 5000);
 		return 9001;
 	}
 	WAIT(!a_button()&&!b_button());
@@ -69,9 +69,9 @@ int main()
 		physical_squareup(true);//square up on the front
 		time_drive(-50, -50, 1000);//get back to the center
 		right(87, 0, 50);//turn towards the edge
-		back_line_follow_time(50, 2500);//move towards edge
+		time_drive(-60, -60, 1500);//move towards edge
 		physical_squareup(false);//square up on the outside of the field
-		tribble_claw_drop();//put the arm down, ready to plow
+		tribble_claw_drop();//drop the claw-->plow position
 		forward(5.25, 60);//move to block position
 		grab_blocks();//grab the blocks...
 		forward(20, 60);//plow the tribbles!
@@ -87,13 +87,9 @@ int main()
 		back(4, 60);//get back to the dumping location
 		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("first dump started at");
-		servo_set(BASKET_ARM, BA_UP, 1);//get it to the top
-		jiggle_basket();//try to get the stuff to fall out
-		servo_set(BASKET_ARM, BA_DOWN, 1);//bring it back
+		dump_basket();//dump...
 		tribble_claw_dump();//put the tribbles in the basket
-		servo_set(BASKET_ARM, BA_UP, 1);//raise the basket
-		jiggle_basket();//try to get the stuff to fall out
-		servo_set(BASKET_ARM, BA_DOWN, 1);//bring it back
+		dump_basket();//and again
 		nowstr("first dump finished at");
 		move_block_arm(BLA_UP);//back to driving position
 		forward(15, 60);//plow the second set of tribbles, get to block location
@@ -108,19 +104,13 @@ int main()
 		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//put the arm down to get it out of the way
 		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("second dump started at");
-		servo_set(BASKET_ARM, BA_UP, 1);//get it to the top
-		jiggle_basket();//try to get the stuff to fall out
-		servo_set(BASKET_ARM, BA_DOWN, 1);//bring it back
+		dump_basket();//dump
 		tribble_claw_dump();//put the tribbles in the basket
-		servo_set(BASKET_ARM, BA_UP, 1);//raise the basket
-		jiggle_basket();//try to get the stuff to fall out
-		servo_set(BASKET_ARM, BA_DOWN, 1);//bring the basket back
+		dump_basket();//and again
 		forward(2, 60);//push the tribbles a bit
 		back(2, 60);//get back into dump location, tribbles near edge of claw
 		tribble_claw_dump();//one last chance to get any extra tribbles that didn't make it the first time
-		servo_set(BASKET_ARM, BA_UP, 1);//
-		jiggle_basket();//
-		servo_set(BASKET_ARM, BA_DOWN, 1);//just get it out of the way
+		dump_basket();//and one final time
 	}
 	else//drive strategy
 	{
@@ -154,9 +144,14 @@ void grab_blocks()//goes through the routine to pick up the blocks
 	msleep(500);
 	servo_set(BLOCK_CLAW, BC_OPEN,.75);//
 	msleep(300);
+	servo_set(BLOCK_CLAW, BC_START, .4);//shake the claw a bit to try to push the blocks in if they didn't go in the first time
+	msleep(100);
+	servo_set(BLOCK_CLAW, BC_OPEN, .75);//
+	msleep(300);
+	servo_set(BLOCK_CLAW, BC_START, .4);//
 	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .4);//put the claw back down
-	servo_set(TRIBBLE_ARM, TA_DOWN, .4);//
+	servo_set(TRIBBLE_ARM, TA_START, .4);//
 	msleep(200);
 	servo_set(TRIBBLE_CLAW, TC_OPEN, .6);//
-	servo_set(BLOCK_CLAW, BC_START, .4);//needs to be in this position to drive-->very condensed
+	servo_set(TRIBBLE_ARM, TA_DOWN, .1);//
 }

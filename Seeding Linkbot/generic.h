@@ -21,7 +21,7 @@
 #define BA_JERK 500//down enough to jiggle the basket
 #define BA_MID 600//high enough to let the block arm in
 #define TRIBBLE_CLAW 2
-#define TC_OPEN 1400
+#define TC_OPEN 1300
 #define TC_PART_OPEN 700//only part way open
 #define TC_CLOSE 250
 #define TRIBBLE_ARM 0
@@ -343,19 +343,22 @@ void tribble_claw_dump()//from claw down and closed, dumps in the basket
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//so close it
 	servo_set(TRIBBLE_ARM, TA_DUMP, 1.2);//lift the arm (slow enough that loose tribbles don't go flying
 	msleep(500);
-	servo_set(TRIBBLE_CLAW, TC_OPEN, .4);//open to dump the tribbles
+	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .3);//open slightly, let some tribbles fall out
 	msleep(500);
-	servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//close and reopen to try to get them all in
-	servo_set(TRIBBLE_CLAW, TC_OPEN, .4);//(this is optional and may need to be taken out later)
+	servo_set(TRIBBLE_CLAW, TC_CLOSE, .2);//close...
+	servo_set(TRIBBLE_CLAW, TC_OPEN, .4);//then open completely to dump the rest of the tribbles
 	msleep(500);
 	tribble_claw_drop();//get the arm out of the way
 }
-void jiggle_basket()//jiggles the basket while dumping-->help stuff fall out
+void dump_basket()//dumps the basket, including jiggle
 {
+	servo_set(BASKET_ARM, BA_UP, 1);
 	msleep(1000);//let stuff fall out
 	servo_set(BASKET_ARM, BA_JERK, .1);//jerk to loosen stuff
+	msleep(100);
 	servo_set(BASKET_ARM, BA_UP, .1);//
 	msleep(1000);//more time to let stuff fall out
+	servo_set(BASKET_ARM, BA_DOWN, 1);
 }
 void move_block_arm(int target)
 {
