@@ -54,23 +54,19 @@ void back_line_follow(float distance, int power)//follows a black line while goi
 		{//both black or both white-->lined up (probs)
 			motor(MOT_LEFT, -power);//so run at full power
 			motor(MOT_RIGHT, -power);//
-			printf("S");
 		}
 		else if(LLIGHT<=THRESHOLD)//only left is black-->left is too far forward
 		{
 			motor(MOT_LEFT, -power/2);//so slow down left
 			motor(MOT_RIGHT, -power);//
-			printf("L");
 		}
 		else//only right is black-->right is too far forward
 		{
 			motor(MOT_LEFT, -power);//so slow down right
 			motor(MOT_RIGHT, -power/2);//
-			printf("R");
 		}
 		msleep(10);
 	}
-	printf("\n");
 	drive_off();
 }
 

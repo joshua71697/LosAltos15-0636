@@ -61,9 +61,12 @@ int main()
 	if(strategy==PIPE_JUMP)
 	{
 		ready_to_jump();
+		msleep(500);//give the robot time to settle down
 		time_drive(-90, -90, 1300);//jump!
-		servo_set(TRIBBLE_ARM, TA_UP,.1);//move the claw up so it can square up
+		servo_set(TRIBBLE_ARM, TA_UP,.3);//move the claw up so it can square up
+		msleep(500);//let the robot settle down some
 		time_drive(-50, -50, 1500);//get towards the pipe
+		msleep(500);//let the robot settle down some
 		physical_squareup(false);//square up on the back
 		time_drive(50, 50, 2500);//go back towards the other wall
 		physical_squareup(true);//square up on the front
@@ -76,15 +79,16 @@ int main()
 		grab_blocks();//grab the blocks...
 		forward(20, 60);//plow the tribbles!
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .7);//grab the tribbles
+		servo_set(TRIBBLE_ARM, TA_DOWN-100, .3);//lift the arm slightly so it doesn't get caught on the bump
 		forward(18, 60);//get across the center
 		servo_set(TRIBBLE_ARM, TA_START, .1);//push into the ground so the claw doesn't jump
 		servo_set(TRIBBLE_CLAW, TC_OPEN, .8);//back into plow position
 		servo_set(TRIBBLE_ARM, TA_DOWN, .1);//back to drive position
 		msleep(250);
-		forward(15, 60);//get to dumping location (overshoot a bit to get an extra tribble or two)
+		forward(14, 60);//get to dumping location (overshoot a bit to get an extra tribble or two)
 		back(2, 60);//pull back a bit from the tribbles (the far end of the claw dumps better than the close end
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .5);//grab the tribbles so they can't escape
-		back(4, 60);//get back to the dumping location
+		back(1.5, 60);//get back to the dumping location
 		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("first dump started at");
 		dump_basket();//dump...
@@ -92,7 +96,8 @@ int main()
 		dump_basket();//and again
 		nowstr("first dump finished at");
 		move_block_arm(BLA_UP);//back to driving position
-		forward(15, 60);//plow the second set of tribbles, get to block location
+		//forward(15, 60);//plow the second set of tribbles, get to block location
+		time_drive(62, 60, 3200);//arc towards the right wall to make sure it follows the right wall
 		grab_blocks();//grab the blocks...
 		forward(8, 60);//plow the remaining tribbles
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
@@ -100,7 +105,7 @@ int main()
 		time_drive(60, 60, 1500);//get towards the wall
 		physical_squareup(true);//and square up on it
 		msleep(200);
-		back_line_follow(33, 60);//back up to the dumping location
+		back_line_follow(33.5, 60);//back up to the dumping location
 		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//put the arm down to get it out of the way
 		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("second dump started at");
@@ -136,7 +141,10 @@ void grab_blocks()//goes through the routine to pick up the blocks
 	servo_set(BLOCK_CLAW, BC_CLOSE,.75);//and pick them up
 	msleep(250);
 	move_block_arm(BLA_LIFT);//get off the ground
+	thread hold=thread_create(hold_ba_lift);//this will hold the block arm at the lift location
+	thread_start(hold);//
 	back(6, 60);//back away from the pipe
+	thread_destroy(hold);//don't want to hold it up any more
 	servo_set(TRIBBLE_ARM, TA_JUMP, .5);//bring the ta up to keep the blocks in the basket
 	servo_set(TRIBBLE_CLAW, TC_CLOSE, .5);//
 	servo_set(TRIBBLE_ARM, TA_UP, .5);//

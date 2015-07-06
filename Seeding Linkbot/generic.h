@@ -17,17 +17,17 @@
 #define BASKET_ARM 1
 #define BA_START 1100
 #define BA_DOWN 1600
-#define BA_UP 0
+#define BA_UP 100
 #define BA_JERK 500//down enough to jiggle the basket
 #define BA_MID 600//high enough to let the block arm in
 #define TRIBBLE_CLAW 2
-#define TC_OPEN 1300
+#define TC_OPEN 1100
 #define TC_PART_OPEN 700//only part way open
 #define TC_CLOSE 250
 #define TRIBBLE_ARM 0
 #define TA_DUMP 200
 #define TA_UP 500//just enough to stop the blocks from falling everywhere
-#define TA_DOWN 1500
+#define TA_DOWN 1600
 #define TA_JUMP 1000//position to get over the pipe (slightly raised)
 #define TA_START 1950//pushes against the ground to shift the robot forward
 #define BLOCK_ARM 1//motor
@@ -334,7 +334,7 @@ void tribble_claw_drop()//drops the claw in a way that (hopefully) won't jump th
 	servo_set(TRIBBLE_ARM, TA_JUMP, .3);
 	servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .2);
 	servo_set(TRIBBLE_ARM, TA_START, .5);//push on the ground
-	servo_set(TRIBBLE_CLAW, TC_OPEN, .5);//if this still jumps, increase the time
+	servo_set(TRIBBLE_CLAW, TC_OPEN, .5);//open it
 	servo_set(TRIBBLE_ARM, TA_DOWN, .1);//stop pushing on the ground
 }
 void tribble_claw_dump()//from claw down and closed, dumps in the basket
@@ -355,7 +355,6 @@ void dump_basket()//dumps the basket, including jiggle
 	servo_set(BASKET_ARM, BA_UP, 1);
 	msleep(1000);//let stuff fall out
 	servo_set(BASKET_ARM, BA_JERK, .1);//jerk to loosen stuff
-	msleep(100);
 	servo_set(BASKET_ARM, BA_UP, .1);//
 	msleep(1000);//more time to let stuff fall out
 	servo_set(BASKET_ARM, BA_DOWN, 1);
@@ -374,6 +373,17 @@ void move_block_arm(int target)
 	off(BLOCK_ARM);
 	if(my_abs(gmpc(BLOCK_ARM)-start_pos)<10)//moved less than 10 ticks-->try again
 		move_block_arm(target);
+}
+void hold_ba_lift()//holds the block arm at the lift position (call in a parallel process)
+{
+	while(1)//make sure to kill this thread when you're done with it...
+	{
+		if(my_abs(gmpc(BASKET_ARM))<my_abs(BLA_LIFT))//too far down
+			motor(BASKET_ARM, 50*sign(BLA_LIFT));//move it up some
+		else
+			motor(BASKET_ARM, 20*sign(BLA_LIFT));//try to just hold it in position
+		msleep(10);
+	}
 }
 void servo_set(int port,int end,float time)
 {//position is from 0-2047
