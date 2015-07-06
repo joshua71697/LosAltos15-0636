@@ -1,5 +1,3 @@
-
-
 #define RIGHT_TOUCH 15
 #define LEFT_TOUCH 14
 
@@ -9,11 +7,13 @@
 #define LID_MID 1000
 #define LID_ALL 2040
 #define LID_DOWN 1700
+#define LID_ALL_UP 0
 
 #define SWEEPER 2
-// in = score
-#define SWEEPER_IN 1350
-#define SWEEPER_OUT 250
+// in = score, IN THE CALDERA
+#define SWEEPER_ALL_IN 0
+#define SWEEPER_IN 200
+#define SWEEPER_OUT 1400
 #define SWEEPER_INIT 1000
 #define SWEEPER_ALL 2000
 
@@ -21,7 +21,8 @@
 #define HELPER_MOTOR_UP_SPEED 100
 #define HELPER_MOTOR_DOWN_SPEED -100
 
-#define ROLLER 2
+// clockwise is fire.
+#define ROLLER 3
 #define ROLLER_OUT_SPEED 100
 #define ROLLER_IN_SPEED -100
 
@@ -297,6 +298,7 @@ void sweep(int num_times)
 }
 void singleSweep(float time)
 {
+	servo_set(LID, LID_ALL_UP, time);
 	servo_set(SWEEPER,SWEEPER_IN, time);
 	servo_set(SWEEPER,SWEEPER_OUT, time);
 }

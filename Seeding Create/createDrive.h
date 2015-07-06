@@ -35,6 +35,36 @@ void create_write_byte(int num)
 
 #define MM_TO_INCH 25.4
 
+// Turning CCW increases this value and CW decreases the value. of get create angle
+
+void simple_forward(int speed, int dist)
+{
+	set_create_distance(0);
+	create_drive_direct(speed, speed);
+	while ( get_create_distance() < (dist * 25.4) );
+}
+
+void simple_backward(int dist, int speed)
+{
+	set_create_distance(0);
+	create_drive_direct(-speed, -speed);
+	while ( get_create_distance() > (-dist * 25.4) );
+}
+
+void simple_right(int degrees, int speed)
+{
+	set_create_total_angle(0);
+	create_spin_CW(speed);
+	while( get_create_total_angle() > -degrees );
+}
+
+void simple_left(int degrees, int speed)
+{
+	set_create_total_angle(0);
+	create_spin_CCW(speed);
+	while( get_create_total_angle() < degrees );
+}
+
 void forward_time(int time, int speed)
 {
 	create_drive_direct(speed, speed);

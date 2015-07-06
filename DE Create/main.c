@@ -34,15 +34,16 @@ int main()
 	motor(HELPER_MOTOR, HELPER_MOTOR_UP_SPEED);
 	set_servo_position(SWEEPER, SWEEPER_ALL);
 	set_servo_position(LID, LID_ALL);
-	msleep(600);
+	msleep(500);
 	set_servo_position(LID, LID_MID);
-	msleep(00);
+	set_servo_position(SWEEPER, SWEEPER_INIT);
+	msleep(100);
 	
 	///// stop the create /////
 	if (button == A)
 		while ( get_create_distance() < (30 * 25.4) );
 	else if (button == B)
-		while ( get_create_distance() < (31 * 25.4) );
+		while ( get_create_distance() < (30 * 25.4) );
 	else if (button == C)
 		while ( get_create_distance() < (33 * 25.4) ); // SLOW
 	create_stop();
@@ -60,13 +61,12 @@ int main()
 	}
 	else if ( (button == B) )
 	{
-		create_left(1,1,300);
-		create_block();
 		singleSweep(.8);
 		servo_set(LID, LID_DOWN, 2);
 		wideShake();
 		sweep(5);
 		sweep(5);
+		
 	}
 	else if( (button == C) )
 	{
@@ -80,6 +80,8 @@ int main()
 	
 	///// end and hope /////
 	create_stop();
+	set_servo_position(SWEEPER, SWEEPER_ALL_IN);
+	msleep(1000);
 	disable_servos();
 	thread_destroy(rollIgus);
 	ao();

@@ -24,26 +24,26 @@ int main()
 	create_block();	
 	pingArmDown();
 	
-	create_drive_direct_dist(NS, NS*.96, 36*MM_TO_INCH);
+	create_drive_direct_dist(NS, NS*.96, 34*MM_TO_INCH);
 	create_left(15,1,TS);
 	create_block();
 	
 	///// pick up far cubes
 	// timeBlockDown(700);
 	blockClawOpen();
-	create_forward(11,SS);
+	create_forward(6,SS);
 	create_block();	
 	blockClawClose();
 	timeBlockUp(1800);
 	
 	///// go to caldera
 	create_right(15,1,TS);
-	create_backward(43,NS);
+	create_backward(38,NS);
 	create_right(85,1,TS);
 	create_block();
 	backward_time(1500,SS); // square up with side wall
 	create_forward(15,SS);
-	create_right(130,1,TS);
+	create_right(131,1,TS);
 	create_backward(12,SS);
 	create_block();
 	
@@ -55,39 +55,33 @@ int main()
 	create_forward(3,NS);
 	create_block();
 	blockClawClose(); // this knocks in the last one
-	motor(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED/2);
-	blockClawOpen();
+	set_servo_position(BLOCK_CLAW, BLOCK_CLAW_MID);
+	motor(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED/3);
+	msleep(500);
 	
 	printf("\n\nBLOCKS %d \n",curr_time());
 	
 	///// go to ping pongs 
-	
-	//motor(PING_ARM, PING_ARM_UP_SPEED); //slowly help it in the background
-	//msleep(200);
-	//off(PING_ARM);
 	create_left(19,1500,NS);
-	//create_forward(20,NS);
-	
-	//motor(PING_ARM, PING_ARM_UP_SPEED/2); //slowly help it in the background
-	//create_forward(8,NS);
 	create_left(118,1,TS);
-	create_backward(9,NS);
+	create_backward(10,NS);
 	create_block();
-	backward_time(3500,SS/4);
+	backward_time(1000,SS);
+	blockClawOpen();
 	pingArmUp();
 	off(BLOCK_ARM);
 	motor(PING_ARM, PING_ARM_UP_SPEED); //slowly help it in the background
 	
-	create_forward(7.25,NS); // this number determines how far away we will be.
+	create_forward(7.75,NS); // this number determines how far away we will be.
 	create_left(90,1,TS);
-	create_backward(12,NS);
+	create_backward(13,NS);
 	create_block();
 	
 	/////////////////////////////////////////////////////////////////////
 	///////////////////////// SECOND HALF ///////////////////////////////
 	/////////////////////////////////////////////////////////////////////
 	
-	backward_time(3500,SS/4); //squared up with base wall.
+	backward_time(1000,SS); //squared up with base wall.
 	create_forward(1.5,NS);
 	create_right(10,1,TS);
 	create_block();
@@ -97,10 +91,17 @@ int main()
 	
 	///// start scoring the ping pong balls
 	scorePing(); // ### SCORE ONE ###
-	scorePing(); // ### SCORE TWO ###
-	pingArmUp();
+	upDown(); // ### SCORE TWO ###
+	create_right(5,1,TS);
+	create_forward(7.75,SS); //used to be 7.5
+	create_left(5,1,TS);
+	create_block();
+	pingArmUp(); // ### SCORE THREE ###
 	pingArmDown();
-	create_forward(36,NS); // dist between is 36
+	create_left(5,1,TS);
+	create_forward(16,NS); // dist between is 36
+	create_right(5,1,TS);
+	create_forward(20,NS);
 	create_block();
 	scorePing(); // ### SCORE FOUR ###
 	upDown(); // ### SCORE FIVE ###
@@ -113,26 +114,53 @@ int main()
 	create_backward(50,NS); 
 	create_block();
 	create_right(90,1,SS);
+	create_backward(6,NS);
+	backward_time(1000,SS); //squared up with base wall.
 	create_block();
+	
 	motor(PING_ARM, PING_ARM_UP_SPEED); //tighten this
 	msleep(1000);
-	create_forward(18,NS); 
-	create_left(80,1,TS);
-	create_forward(13,FS);
+	create_forward(21,FS); 
+	create_left(90,1,TS);
+	create_forward(10,FS);
 	
 	create_block();
 	///// deploy, end, and be happy :)
 	
-	deploy();
-	create_drive_direct(-FS, -FS);
-	msleep(1000);
-	create_drive_direct(-TS/3, TS/3);
-	msleep(234234234);
 	
+	deploy();
+	printf("\n\n\n===\n\n");
+	now();
+	/*
+	
+	///// extras!!!! /////
+	thread armDown = thread_create(pingArmDown);
+	thread_start(armDown);
+	simple_backward(12, FS);
+	simple_right(10, TS);
+	thread_destroy(armDown);
+	pingArmUp();
+	
+	thread armDown2 = thread_create(pingArmDown);
+	thread_start(armDown2);
+	
+	simple_left(20, TS);
+	thread_destroy(armDown2);
+	
+	pingArmUp();
+	
+	msleep(300);
+	create_stop();
+	
+	
+	pingArmUp();
+	*/
 	create_block();
 	create_disconnect();
+//	thread_destroy(armDown);
+	
 	ao();
-	now();
+	
 }
 
 

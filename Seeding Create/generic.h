@@ -8,7 +8,7 @@
 #define BLOCK_ARM_UP_SPEED -100
 #define BLOCK_ARM_DOWN_SPEED 100
 #define BLOCK_ARM_SPEED 100
-#define BLOCK_ARM_UP_POS -6700
+#define BLOCK_ARM_UP_POS -4500
 #define BLOCK_ARM_HOVER_POS -1000
 #define BLOCK_ARM_MID_POS -2000
 //-2700 is straight up
@@ -17,6 +17,8 @@
 #define BLOCK_CLAW 2
 #define BLOCK_CLAW_CLOSED 800
 #define BLOCK_CLAW_OPEN 2047
+#define BLOCK_CLAW_MID ( (BLOCK_CLAW_CLOSED + BLOCK_CLAW_OPEN) / 2 )
+
 
 
 #define PING_GATE 0
@@ -24,8 +26,9 @@
 #define PING_GATE_OPEN 1047
 
 #define LIGHT_START 0
-#define BLOCK_LEVER_TOUCH 15
+#define BLOCK_DOWN_LEVER_TOUCH 15
 #define PING_LEVER_TOUCH 14
+#define BLOCK_UP_LEVER_TOUCH 13
 
 
 //menu
@@ -39,7 +42,7 @@
 
 
 // speeds defined: {slowSpeed,normalSpeed, fastSpeed} out of 500
-#define SS 100
+#define SS 150
 #define NS 300
 #define FS 500
 #define TS 100
@@ -198,7 +201,7 @@ int currstate;
 	currstate = State;
 	i = -1;
 	while (!strcmp(menu[++i].name,"FIN")){
-	if (menu[i].snum==State){
+if (menu[i].snum==State){
 nowstr(menu[i].name);
 return;
 }
@@ -237,15 +240,15 @@ void shutdownin(float time)//cause raisins.
 void blockArmDown()
 {
 	motor(BLOCK_ARM,BLOCK_ARM_DOWN_SPEED);
-	while(! (digital(BLOCK_LEVER_TOUCH)) )
-		msleep(1);
+	while(! (digital(BLOCK_DOWN_LEVER_TOUCH)) )
+	msleep(1);
 	ao();
 }
 void deploy()
 {
 	enable_servos();
 	set_servo_position(PING_GATE, PING_GATE_OPEN);
-	msleep(2500);
+	msleep(2000);
 }
 void printMotorPos(int port)
 {
@@ -301,7 +304,7 @@ void pingArmDown()
 {
 	motor(PING_ARM, PING_ARM_DOWN_SPEED);
 	while(! (digital(PING_LEVER_TOUCH)) )
-		msleep(1);
+	msleep(1);
 	ao();
 }
 void timeBlockDown(int time)
@@ -346,7 +349,7 @@ void upDown()
 void scorePing()
 {
 	upDown();
-	create_forward(7.5,SS);
+	create_forward(7.6,SS); //used to be 7.5
 	create_block();
 	msleep(500);
 }
