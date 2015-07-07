@@ -359,6 +359,14 @@ void dump_basket()//dumps the basket, including jiggle
 	msleep(1000);//more time to let stuff fall out
 	servo_set(BASKET_ARM, BA_DOWN, 1);
 }
+void dump_basket_stay()//dumps the basket, but doesn't lower (for the last dump)
+{
+	servo_set(BASKET_ARM, BA_UP, 1);
+	msleep(1000);//let stuff fall out
+	servo_set(BASKET_ARM, BA_JERK, .1);//jerk to loosen stuff
+	servo_set(BASKET_ARM, BA_UP, .1);//
+	msleep(1000);//more time to let stuff fall out
+}
 void move_block_arm(int target)
 {
 	int dir=sign(target-gmpc(BLOCK_ARM));//direction it has to move in (+1 or -1)
@@ -369,10 +377,18 @@ void move_block_arm(int target)
 		motor(BLOCK_ARM, 60*dir);
 	else//moving down-->doesn't need that much power
 		motor(BLOCK_ARM, 35*dir);
-	LIMIT((target-gmpc(BLOCK_ARM))*dir<=0, 1500);//wait until it reaches the position (timeout after 1.5 seconds)
+	float start_time=curr_time();//for timeout
+	float timeout=1.5;//in seconds
+	while((target-gmpc(BLOCK_ARM))*dir>0)//while hasn't reached the target yet
+	{
+		if(curr_time()-start_time>timeout)//has reached the end of the allotted time
+		{
+			printf("arm movement timed out\n");
+			break;
+		}
+		msleep(5);
+	}
 	off(BLOCK_ARM);
-	if(my_abs(gmpc(BLOCK_ARM)-start_pos)<10)//moved less than 10 ticks-->try again
-		move_block_arm(target);
 }
 void hold_ba_lift()//holds the block arm at the lift position (call in a parallel process)
 {

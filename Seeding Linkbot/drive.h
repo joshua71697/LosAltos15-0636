@@ -8,8 +8,8 @@
 #define MOT_LEFT 0
 #define MOT_RIGHT 3
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459//yea, get rekt
-#define R_DIST_CONST 1.02//distance constants-->how far you tell it to move/how far it actually moves
-#define L_DIST_CONST 1//
+#define R_DIST_CONST .98//distance constants-->how far you tell it to move/how far it actually moves
+#define L_DIST_CONST 1.//
 #define PID_CONST .4//how much the motor speeds change based off how far off each motor is
 #define END_THRESHOLD 460.//at what point the "end" starts-->460 is 1/2 turn (~4 inches for the standard wheels)
 #define END_SCALE .9//how much the motor slows down at the end (=final speed)
@@ -26,7 +26,8 @@
 //line following/squareup
 #define LLIGHT analog(3)
 #define RLIGHT analog(2)
-#define THRESHOLD 600//below is black, above is white
+#define THRESHOLD 500//below is black, above is white
+#define DIFF_THRESH 200//how far apart the values can be before it arcs
 
 #define drive_off() off(MOT_RIGHT) ;off(MOT_LEFT)
 
@@ -50,20 +51,21 @@ void back_line_follow(float distance, int power)//follows a black line while goi
 	motor(MOT_RIGHT, -power);
 	while(my_abs(gmpc(MOT_LEFT))+my_abs(gmpc(MOT_RIGHT))<ticks*2)//go until the average ticks is the goal
 	{
-		if((LLIGHT>=THRESHOLD&&RLIGHT>=THRESHOLD)||(LLIGHT<=THRESHOLD&&RLIGHT<=THRESHOLD))
-		{//both black or both white-->lined up (probs)
+		int diff=LLIGHT-RLIGHT;//difference between the readings
+		if(my_abs(diff)<DIFF_THRESH)//not far enough apart to arc
+		{//-->both black or both white-->lined up (probs)
 			motor(MOT_LEFT, -power);//so run at full power
 			motor(MOT_RIGHT, -power);//
 		}
-		else if(LLIGHT<=THRESHOLD)//only left is black-->left is too far forward
-		{
-			motor(MOT_LEFT, -power/2);//so slow down left
-			motor(MOT_RIGHT, -power);//
-		}
-		else//only right is black-->right is too far forward
+		else if(diff>DIFF_THRESH)//left is a lot bigger-->probs right is black, left isn't
 		{
 			motor(MOT_LEFT, -power);//so slow down right
 			motor(MOT_RIGHT, -power/2);//
+		}
+		else//right is a lot bigger-->probs left is black, right isn't
+		{
+			motor(MOT_LEFT, -power/2);//so slow down left
+			motor(MOT_RIGHT, -power);//
 		}
 		msleep(10);
 	}
@@ -81,20 +83,21 @@ void back_line_follow_time(int power, int time)//following a line for a given am
 	float start_time=curr_time();
 	while((curr_time()-start_time)*1000<time)//go for the amount of time specified
 	{
-		if((LLIGHT>=THRESHOLD&&RLIGHT>=THRESHOLD)||(LLIGHT<=THRESHOLD&&RLIGHT<=THRESHOLD))
-		{//both black or both white-->lined up (probs)
+		int diff=LLIGHT-RLIGHT;
+		if(my_abs(diff)<200)//pretty close to each other
+		{//-->probs both black or both white-->lined up (maybe)
 			motor(MOT_LEFT, -power);//so run at full power
 			motor(MOT_RIGHT, -power);//
 		}
-		else if(LLIGHT<=THRESHOLD)//only left is black-->left is too far forward
-		{
-			motor(MOT_LEFT, -power/2);//so slow down left
-			motor(MOT_RIGHT, -power);//
-		}
-		else//only right is black-->right is too far forward
+		else if(diff>200)//left is bigger-->probs right on the line
 		{
 			motor(MOT_LEFT, -power);//so slow down right
 			motor(MOT_RIGHT, -power/2);//
+		}
+		else//right is bigger-->probs left on the line
+		{
+			motor(MOT_LEFT, -power/2);//so slow down left
+			motor(MOT_RIGHT, -power);//
 		}
 		msleep(10);
 	}

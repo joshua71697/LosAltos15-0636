@@ -57,6 +57,7 @@ int main()
 		printf("starting in 2 seconds...\n");
 		msleep(2000);
 	}
+	shutdownin(119.5);
 	start();//timing
 	if(strategy==PIPE_JUMP)
 	{
@@ -78,17 +79,17 @@ int main()
 		forward(5.25, 60);//move to block position
 		grab_blocks();//grab the blocks...
 		forward(20, 60);//plow the tribbles!
-		servo_set(TRIBBLE_CLAW, TC_CLOSE, .7);//grab the tribbles
-		servo_set(TRIBBLE_ARM, TA_DOWN-100, .3);//lift the arm slightly so it doesn't get caught on the bump
+		servo_set(TRIBBLE_CLAW, TC_CLOSE, .7);//close claw to catch tribbles
+		servo_set(TRIBBLE_ARM, TA_UP, 1);//put the arm up to get across the center
 		forward(18, 60);//get across the center
-		servo_set(TRIBBLE_ARM, TA_START, .1);//push into the ground so the claw doesn't jump
+		servo_set(TRIBBLE_ARM, TA_START, .5);//push into the ground so the claw doesn't jump
 		servo_set(TRIBBLE_CLAW, TC_OPEN, .8);//back into plow position
 		servo_set(TRIBBLE_ARM, TA_DOWN, .1);//back to drive position
 		msleep(250);
 		forward(14, 60);//get to dumping location (overshoot a bit to get an extra tribble or two)
 		back(2, 60);//pull back a bit from the tribbles (the far end of the claw dumps better than the close end
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .5);//grab the tribbles so they can't escape
-		back(1.5, 60);//get back to the dumping location
+		back(1.75, 60);//get back to the dumping location
 		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("first dump started at");
 		dump_basket();//dump...
@@ -97,7 +98,7 @@ int main()
 		nowstr("first dump finished at");
 		move_block_arm(BLA_UP);//back to driving position
 		//forward(15, 60);//plow the second set of tribbles, get to block location
-		time_drive(62, 60, 3200);//arc towards the right wall to make sure it follows the right wall
+		time_drive(64, 60, 3200);//arc towards the right wall to make sure it follows the right wall
 		grab_blocks();//grab the blocks...
 		forward(8, 60);//plow the remaining tribbles
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
@@ -105,17 +106,19 @@ int main()
 		time_drive(60, 60, 1500);//get towards the wall
 		physical_squareup(true);//and square up on it
 		msleep(200);
-		back_line_follow(33.5, 60);//back up to the dumping location
+		back_line_follow(35.5, 60);//back up to the dumping location
 		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//put the arm down to get it out of the way
 		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("second dump started at");
 		dump_basket();//dump
 		tribble_claw_dump();//put the tribbles in the basket
 		dump_basket();//and again
-		forward(2, 60);//push the tribbles a bit
-		back(2, 60);//get back into dump location, tribbles near edge of claw
+		forward(6, 60);//push the tribbles a bit
+		back(2, 60);//tribbles near edge of claw
+		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
+		back(5, 60);//back to dump location (plus a bit, just to be safe)
 		tribble_claw_dump();//one last chance to get any extra tribbles that didn't make it the first time
-		dump_basket();//and one final time
+		dump_basket_stay();//and one final time (stay up)
 	}
 	else//drive strategy
 	{
