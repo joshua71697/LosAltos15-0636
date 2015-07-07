@@ -1,7 +1,7 @@
 #define PING_ARM 0
 #define PING_ARM_UP_SPEED 100
 #define PING_ARM_DOWN_SPEED -100
-#define PING_ARM_UP_POS 1000
+#define PING_ARM_UP_POS 1100
 #define PING_ARM_DOWN_POS (-PING_ARM_UP_POS) 
 
 #define BLOCK_ARM 2
@@ -303,8 +303,9 @@ void pingArmUp()
 void pingArmDown()
 {
 	motor(PING_ARM, PING_ARM_DOWN_SPEED);
-	while(! (digital(PING_LEVER_TOUCH)) )
-	msleep(1);
+	double time = curr_time();
+	while( !(digital(PING_LEVER_TOUCH)) && ( curr_time() - time < 1.0)  )
+		msleep(1);
 	ao();
 }
 void timeBlockDown(int time)

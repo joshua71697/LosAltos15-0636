@@ -55,7 +55,7 @@ int main()
 	create_forward(3,NS);//#yoloswag
 	create_block();
 	// blockClawClose(); // this knocks in the last one
-	servo_set(BLOCK_CLAW, BLOCK_CLAW_CLOSED, 2);
+	servo_set(BLOCK_CLAW, BLOCK_CLAW_CLOSED, 0.5);
 	create_backward(2,NS);//#yoloswag
 	create_block();
 	servo_set(BLOCK_CLAW, BLOCK_CLAW_OPEN, 0.5);
@@ -97,8 +97,8 @@ int main()
 	motor(PING_ARM, PING_ARM_UP_SPEED); //go up part way
 	msleep(100);
 	ao();
-	create_left(8,1,TS); 
-	create_block();	
+	create_left(9,1,TS); //xXswagnimiteXx game o da yearrrrr
+	create_block();	// no chapel here :)
 
 	///// start scoring the ping pong balls
 	msleep(1000);
@@ -115,7 +115,7 @@ int main()
 	upDown(); // ### SCORE TWO ###
 	create_right(5,1,TS);
 	create_forward(7.75,SS); //used to be 7.5
-	create_left(6,1,TS); 
+	create_left(5,1,TS);
 	create_block();
 	msleep(1000);
 	pingArmUp(); // ### SCORE THREE ###
