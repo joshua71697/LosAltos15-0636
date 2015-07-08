@@ -109,8 +109,8 @@ void physical_squareup(boolean forward)//true means square up on the front, fals
 	int direction=1;//forward (-1 is back)
 	if(!forward)
 		direction=-1;
-	motor(MOT_LEFT, 40*direction);
-	motor(MOT_RIGHT, 40*direction);
+	motor(MOT_LEFT, 50*direction);
+	motor(MOT_RIGHT, 50*direction);
 	msleep(1000);
 	drive_off();
 }

@@ -23,9 +23,9 @@
 #define TRIBBLE_CLAW 2
 #define TC_OPEN 1100
 #define TC_PART_OPEN 700//only part way open
-#define TC_CLOSE 250
+#define TC_CLOSE 0
 #define TRIBBLE_ARM 0
-#define TA_DUMP 200
+#define TA_DUMP 100
 #define TA_UP 500//just enough to stop the blocks from falling everywhere
 #define TA_DOWN 1600
 #define TA_JUMP 1000//position to get over the pipe (slightly raised)

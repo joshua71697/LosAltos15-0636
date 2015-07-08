@@ -62,12 +62,9 @@ int main()
 	if(strategy==PIPE_JUMP)
 	{
 		ready_to_jump();
-		msleep(500);//give the robot time to settle down
 		time_drive(-90, -90, 1300);//jump!
 		servo_set(TRIBBLE_ARM, TA_UP,.3);//move the claw up so it can square up
-		msleep(500);//let the robot settle down some
 		time_drive(-50, -50, 1500);//get towards the pipe
-		msleep(500);//let the robot settle down some
 		physical_squareup(false);//square up on the back
 		time_drive(50, 50, 2500);//go back towards the other wall
 		physical_squareup(true);//square up on the front
@@ -76,7 +73,8 @@ int main()
 		time_drive(-60, -60, 1500);//move towards edge
 		physical_squareup(false);//square up on the outside of the field
 		tribble_claw_drop();//drop the claw-->plow position
-		forward(5.25, 60);//move to block position
+		time_drive(64, 60, 1300);//move to block position-->test this time!///////////////////////////////////////////
+		//forward(5.25, 60);//move to block position
 		grab_blocks();//grab the blocks...
 		forward(20, 60);//plow the tribbles!
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .7);//close claw to catch tribbles
@@ -98,7 +96,7 @@ int main()
 		nowstr("first dump finished at");
 		move_block_arm(BLA_UP);//back to driving position
 		//forward(15, 60);//plow the second set of tribbles, get to block location
-		time_drive(64, 60, 3200);//arc towards the right wall to make sure it follows the right wall
+		time_drive(66, 60, 3200);//arc towards the right wall to make sure it follows the right wall
 		grab_blocks();//grab the blocks...
 		forward(8, 60);//plow the remaining tribbles
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
@@ -113,10 +111,17 @@ int main()
 		dump_basket();//dump
 		tribble_claw_dump();//put the tribbles in the basket
 		dump_basket();//and again
-		forward(6, 60);//push the tribbles a bit
+		move_block_arm(BLA_UP);//driving position
+		servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .3);//get the claw up and out of the way
+		servo_set(TRIBBLE_ARM, TA_UP, .3);
+		back(6, 60);//back up to get the caught tribbles
+		servo_set(TRIBBLE_ARM, TA_START, .3);//put the claw back down
+		servo_set(TRIBBLE_CLAW, TC_OPEN, .5);//
+		servo_set(TRIBBLE_ARM, TA_DOWN, .1);//
+		forward(8, 60);//push the tribbles
 		back(2, 60);//tribbles near edge of claw
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
-		back(5, 60);//back to dump location (plus a bit, just to be safe)
+		move_block_arm(BLA_MID);//get the block arm out of the way
 		tribble_claw_dump();//one last chance to get any extra tribbles that didn't make it the first time
 		dump_basket_stay();//and one final time (stay up)
 	}
