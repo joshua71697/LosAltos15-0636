@@ -1,9 +1,12 @@
+//edited seeding code to run for super seeding!
+
 #include "drive.h"
 
 #define PIPE_JUMP 1//strategmegies
 #define CENTER_DRIVE 2//
 
 void grab_blocks();//see below
+void drive_dump();//
 
 int main()
 {
@@ -67,7 +70,7 @@ int main()
 		printf("starting in 2 seconds...\n");
 		msleep(2000);
 	}
-	shutdownin(119.5);
+	shutdownin(239.5);
 	start();//timing
 	if(strategy==PIPE_JUMP)
 	{
@@ -94,20 +97,18 @@ int main()
 		servo_set(TRIBBLE_CLAW, TC_OPEN, .8);//back into plow position
 		servo_set(TRIBBLE_ARM, TA_DOWN, .1);//back to drive position
 		msleep(250);
-		forward(12, 60);//get to dumping location (overshoot a bit to get an extra tribble or two)
-		back(2, 60);//pull back a bit from the tribbles (the far end of the claw dumps better than the close end)
-		servo_set(TRIBBLE_CLAW, TC_CLOSE, .5);//grab the tribbles so they can't escape
-		back(4, 60);//get back to the dumping location
-		move_block_arm(BLA_MID);//get the block arm out of the way
+		forward(7, 60);//get to dumping location
 		nowstr("first dump started at");
-		dump_basket();//dump...
+		drive_dump();//dump...
+		forward(7, 60);//replow the tribbles (maybe get a few extra)
+		back(2, 60);//get to optimal grab location
 		tribble_claw_dump();//put the tribbles in the basket
-		tribble_claw_drop();
-		dump_basket();//and again
+		back(5, 60);//back to dump location
+		tribble_claw_drop();//put the claw back down
+		drive_dump();//dump again
 		nowstr("first dump finished at");
-		move_block_arm(BLA_UP);//back to driving position
 		//forward(15, 60);//plow the second set of tribbles, get to block location
-		time_drive(66, 60, 3200);//arc towards the right wall to make sure it follows the right wall
+		time_drive(66, 60, 3000);//arc towards the right wall to make sure it follows the right wall
 		grab_blocks();//grab the blocks...
 		forward(8, 60);//plow the remaining tribbles
 		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
@@ -115,28 +116,45 @@ int main()
 		time_drive(60, 60, 1500);//get towards the wall
 		physical_squareup(true);//and square up on it
 		msleep(200);
-		back_line_follow(36.8, 60);//back up to the dumping location
+		back_line_follow(35.8, 60);//back up to the dumping location
 		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//put the arm down to get it out of the way
-		move_block_arm(BLA_MID);//get the block arm out of the way
 		nowstr("second dump started at");
-		dump_basket();//dump
+		drive_dump();//dump
 		tribble_claw_dump();//put the tribbles in the basket
-		tribble_claw_drop();
-		dump_basket();//and again
-		move_block_arm(BLA_UP);//driving position
+		tribble_claw_drop();//
+		drive_dump();//dump again
+		nowstr("second dump finished at");
 		servo_set(TRIBBLE_CLAW, TC_PART_OPEN, .3);//get the claw up and out of the way
 		servo_set(TRIBBLE_ARM, TA_UP, .3);
 		back(6, 60);//back up to get the caught tribbles
 		servo_set(TRIBBLE_ARM, TA_START, .3);//put the claw back down
 		servo_set(TRIBBLE_CLAW, TC_OPEN, .5);//
 		servo_set(TRIBBLE_ARM, TA_DOWN, .1);//
-		forward(8, 60);//push the tribbles
+		forward(38, 60);//push the tribbles (get any that went way down the field)
 		back(2, 60);//tribbles near edge of claw
-		servo_set(TRIBBLE_CLAW, TC_CLOSE, .4);//grab the tribbles
-		move_block_arm(BLA_MID);//get the block arm out of the way
-		tribble_claw_dump();//one last chance to get any extra tribbles that didn't make it the first time
-		dump_basket_stay();//and one final time (stay up)
-		back(2, 60);//back up into the caldera (just in case)
+		tribble_claw_dump();
+		servo_set(TRIBBLE_CLAW, TC_CLOSE, .3);//close the claw, just for good measure
+		back_line_follow(30, 60);//get back to the dumping location
+		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//get the arm out of the way
+		nowstr("third dump started at");
+		drive_dump();
+		nowstr("third dump finished at");
+		back_line_follow(17, 60);//get back across the center
+		right(180, 0, 50);//turn around
+		tribble_claw_drop();//put the claw down...
+		forward(25, 60);//and plow!
+		back(2, 60);//optimal grab location
+		tribble_claw_dump();//well duh...
+		servo_set(TRIBBLE_CLAW, TC_CLOSE, .3);//close the claw for good measure
+		time_drive(60, 60, 1500);//move towards the wall
+		physical_squareup(true);//and square up on it
+		back_line_follow(35.8, 60);//back up to the dumping location
+		servo_set(TRIBBLE_ARM, TA_DOWN, .5);//get the claw out of the way
+		nowstr("fourth dump started at");
+		drive_dump();//dump stuff
+		move_block_arm(BLA_MID);//get the block arm back out of the way
+		servo_set(BASKET_ARM, BA_UP, 1);//put the basket back up
+		time_drive(-50, -50, 1500);//one last chance to dump (stay there just cause...you never know)
 	}
 	else//drive strategy
 	{
@@ -185,4 +203,20 @@ void grab_blocks()//goes through the routine to pick up the blocks
 	msleep(200);
 	servo_set(TRIBBLE_CLAW, TC_OPEN, .6);//
 	servo_set(TRIBBLE_ARM, TA_DOWN, .1);//
+}
+
+void drive_dump()//dumps the basket into the caldera by driving
+{
+	move_block_arm(BLA_MID);//get the arm out of the way
+	servo_set(BASKET_ARM, BA_UP, 1);//raise the arm
+	move_block_arm(BLA_UP);//driving position
+	time_drive(-50, -50, 1000);//drive back into the caldera
+	msleep(1000);//let stuff fall out
+	time_drive(50, 50, 500);//one more attempted dump
+	time_drive(-50, -50, 1000);//
+	time_drive(50, 50, 500);//get off the caldera a bit (hopefully reducing catching)
+	msleep(1000);//more time to fall out
+	move_block_arm(BLA_MID);//get the arm out of the way
+	servo_set(BASKET_ARM, BA_DOWN, 1);//bring the basket down
+	move_block_arm(BLA_UP);//driving position
 }
