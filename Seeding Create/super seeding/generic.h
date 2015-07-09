@@ -43,8 +43,8 @@
 
 
 // speeds defined: {slowSpeed,normalSpeed, fastSpeed} out of 500
-#define SS 150
-#define NS 300
+#define SS 100
+#define NS 200
 #define FS 500
 #define TS 100
 
@@ -326,7 +326,7 @@ void timeBlockUp(int time)
 void shake(int count)
 {
 	int i = 0;
-	backward_time(2000,SS);
+	backward_time(4000,SS);
 	create_forward(1,NS);
 	while (i < count)
 	{
@@ -432,9 +432,9 @@ int init()
 	ao();
 	disable_servo(PING_GATE);
 	create_connect();
-	backward_time(1000,SS); //square up first.
+	backward_time(2000,SS); //square up first.
 	light_start(LIGHT_START);
-	shut_down_in(235.5);
+	shut_down_in(119.5);
 	start();
 }
 void blockClawClose()
@@ -450,7 +450,7 @@ void dropOffBlocks()
 {
 	create_right(85,1,TS);
 	create_block();
-	backward_time(2000,SS); // square up with side wall
+	backward_time(4000,SS); // square up with side wall
 	
 	create_forward(15,NS);
 	create_right(130,1,TS);

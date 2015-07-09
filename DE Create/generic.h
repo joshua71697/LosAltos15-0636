@@ -21,6 +21,11 @@
 #define HELPER_MOTOR_UP_SPEED 100
 #define HELPER_MOTOR_DOWN_SPEED -100
 
+#define STRING 2
+#define STRING_UP 100
+#define STRING_DOWN -100
+
+
 // clockwise is fire.
 #define ROLLER 3
 #define ROLLER_OUT_SPEED 100
@@ -35,8 +40,17 @@
 #define A 0
 #define B 1
 #define C 2
+#define S 3
 
 #define LIGHT 0
+
+
+void simple_forward(int speed, int dist)
+{
+	set_create_distance(0);
+	create_drive_direct(speed, speed);
+	while ( get_create_distance() < (dist * 25.4) );
+}
 
 void shoot()
 {
@@ -50,7 +64,7 @@ void roll()
 	motor(ROLLER, ROLLER_OUT_SPEED);
 	msleep(500);
 	off(ROLLER);
-	msleep(2000);
+	msleep(1500);
 	shoot();
 }
 
@@ -269,15 +283,16 @@ int getabbutton(){//returns 0,1 on a,b
 	msleep(2000);beep();
 	return 0;//if something broke
 }
-int getabcbutton(){//returns 0,1,2 on a,b,c
-	WAIT(!(a_button() || b_button() || c_button()));
-	WAIT(a_button() || b_button() || c_button());
+int getbutton(){//returns 0,1,2 on a,b,c, and 4 on white button
+	WAIT(!(a_button() || b_button() || c_button() || side_button()));
+	WAIT(a_button() || b_button() || c_button() || side_button());
 	if (a_button()) return 0;
 	if (b_button()) return 1;
 	if (c_button()) return 2;
+	if (side_button()) return S;
 	printf("ERROR!");beep();
 	msleep(2000);beep();
-	return 0;//if something broke
+	return -1;//if something broke
 }
 void sweep(int num_times)
 {
@@ -287,11 +302,11 @@ void sweep(int num_times)
 	{
 		servo_set(SWEEPER,SWEEPER_IN, time);
 		servo_set(SWEEPER,SWEEPER_OUT, time);
-		create_drive_direct(300,300);
+		/*create_drive_direct(300,300);
 		msleep(10);
 		create_drive_direct(-300,-300);
 		msleep(10);
-		create_stop();
+		create_stop();*/
 		count++;
 		time*=.9; // I felt like it :)
 	}

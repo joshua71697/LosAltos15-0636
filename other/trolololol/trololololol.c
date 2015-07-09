@@ -16,13 +16,14 @@ int main()
 	int pitches_0[10] = { C2, G2, F1, G2, C1, D1, E1, G2, E1, D1 };
 	int tempos_0[10] =  { B , D , E , B , Q , Q , W , W , Q , D  };
 	
-	int pitches_1[NUM_NOTES_PER_SONG] = { C1, E1, G2, C2, B2, B2, G2, A2, A2, F1, G2, G1, B1, D1, F1, E1};
-	int tempos_1[NUM_NOTES_PER_SONG] =  { E , E , E , E , Q , E , E , Q , E , E , H , E , E , E , E , W };
+	int pitches_1[NOTES_PER_SONG] = { C1, E1, G2, C2, B2, B2, G2, A2, A2, F1, G2, G1, B1, D1, F1, E1};
+	int tempos_1[NOTES_PER_SONG] =  { E , E , E , E , Q , E , E , Q , E , E , H , E , E , E , E , W };
 	
-	int pitches_2[NUM_NOTES_PER_SONG] = { C1, E1, G2, C2, B2, B2, G2, A2, A2, F1, G2, G2, GS2, A2, B2, C };
-	int tempos_2[NUM_NOTES_PER_SONG]  = { E , E , E , E , Q , E , E , Q , E , E , H , E , E , E , E , W };
+	int pitches_2[NOTES_PER_SONG] = { C1, E1, G2, C2, B2, B2, G2, A2, A2, F1, G2, G2, GS2, A2, B2, C2 };
+	int tempos_2[NOTES_PER_SONG]  = { E , E , E , E , Q , E , E , Q , E , E , H , E , E , E , E , W };
 	
 	int songNum = 0;
+	int gc_song_array[NOTES_PER_SONG][NOTES_PER_SONG];
 	gc_song_array[songNum][0] = NOTES_PER_SONG;
 	
 	int k = 0;

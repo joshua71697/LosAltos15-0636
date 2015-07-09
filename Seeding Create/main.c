@@ -25,7 +25,7 @@ int main()
 	pingArmDown();
 	
 	create_drive_direct_dist(NS, NS*.96, 32*MM_TO_INCH);
-	create_left(15,1,TS);
+	create_left(16,1,TS);
 	create_block();
 	
 	///// pick up far cubes
@@ -34,7 +34,7 @@ int main()
 	create_forward(9.5,SS);
 	create_block();	
 	blockClawClose();
-	timeBlockUp(1800);
+	timeBlockUp(1600); //1800 for a long time
 	
 	///// go to caldera
 	create_right(14,1,TS); // was 15 for a long time...
@@ -58,12 +58,11 @@ int main()
 	servo_set(BLOCK_CLAW, BLOCK_CLAW_CLOSED, 2);
 	create_backward(2,NS);//#yoloswag
 	create_block();
-	servo_set(BLOCK_CLAW, BLOCK_CLAW_OPEN, 0.5);
+	servo_set(BLOCK_CLAW, BLOCK_CLAW_MID, 1);
 	msleep(1000);
 	create_forward(2,NS);//#yoloswag
 	create_backward(2,NS);//#yoloswag
 	create_block();
-	servo_set(BLOCK_CLAW, BLOCK_CLAW_MID, 1);
 	motor(BLOCK_ARM, BLOCK_ARM_DOWN_SPEED/3);
 	msleep(500);
 	
@@ -80,7 +79,7 @@ int main()
 	off(BLOCK_ARM);
 	motor(PING_ARM, PING_ARM_UP_SPEED); //slowly help it in the background
 	
-	create_forward(8.5,NS); // this number determines how far away we will be.
+	create_forward(8,NS); // this number determines how far away we will be.
 	create_left(90,1,TS);
 	create_backward(13,NS);
 	create_block();
@@ -95,7 +94,7 @@ int main()
 	create_block();
 	pingArmDown();
 	motor(PING_ARM, PING_ARM_UP_SPEED); //go up part way
-	msleep(100);
+	msleep(200);
 	ao();
 	create_left(8,1,TS); 
 	create_block();	
@@ -113,17 +112,17 @@ int main()
 	msleep(500);
 	
 	upDown(); // ### SCORE TWO ###
-	create_right(5,1,TS);
-	create_forward(7.75,SS); //used to be 7.5
-	create_left(6,1,TS); 
+	create_right(3,1,TS);
+	create_forward(8,SS); //used to be 7.5
+	create_left(4,1,TS); 
 	create_block();
 	msleep(1000);
 	pingArmUp(); // ### SCORE THREE ###
 	pingArmDown();
 	create_left(5,1,TS);
 	create_forward(17,NS); // dist between is 36
-	create_right(5,1,TS);
-	create_forward(20,NS);
+	create_right(6,1,TS);
+	create_forward(19,NS);
 	create_block();
 	msleep(500);
 	scorePing(); // ### SCORE FOUR ###
@@ -152,6 +151,8 @@ int main()
 	msleep(2000);
 	
 	deploy();
+	msleep(1000);
+	create_backward(20,SS);
 	printf("\n\n\n===\n\n");
 	now();
 		
