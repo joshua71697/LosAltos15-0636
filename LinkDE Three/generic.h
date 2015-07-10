@@ -23,8 +23,6 @@
 #define ARM_DOWN 1230
 //#define ARM_BOTGUY 
 
-void move_basket(int target, boolean full);
-
 //UTILITY
 float sign(float input)//returns 1 for positive, 0 for 0, -1 for negative
 {
@@ -178,7 +176,7 @@ void reset_buttons()
 }
 
 int wait_time;
-/*void wait_shutdown()
+void wait_shutdown()
 {
 	msleep(wait_time);
 	printf("ended based off time\n");
@@ -189,7 +187,7 @@ void shutdownin(float time)//cause raisins.
 	wait_time=(int)(time*1000);
 	thread tw=thread_create(wait_shutdown);
 	thread_start(tw);
-}*/
+}
 
 void panic(){
 	int i;
