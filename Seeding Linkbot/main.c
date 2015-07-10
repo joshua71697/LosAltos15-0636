@@ -67,7 +67,7 @@ int main()
 		printf("starting in 2 seconds...\n");
 		msleep(2000);
 	}
-	shutdownin(119.5);
+	shutdownin(239.9);//for superseeding//////////////////////////////////////////////////////////////////////
 	start();//timing
 	if(strategy==PIPE_JUMP)
 	{
