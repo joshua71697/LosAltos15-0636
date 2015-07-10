@@ -4,7 +4,7 @@
 #define LID 0
 #define LID_UP 760
 #define LID_INIT 500
-#define LID_MID 1000
+#define LID_MID 1200
 #define LID_ALL 2040
 #define LID_DOWN 1700
 #define LID_ALL_UP 0

@@ -11,7 +11,7 @@ int main()
 	int button = getbutton();
 	printf("\n\nStrategy: %d", button);
 	create_connect();
-	+---------------create_full();
+	create_full();
 	set_create_distance(0);
 	set_servo_position(LID, LID_INIT);
 	set_servo_position(SWEEPER, SWEEPER_INIT);
@@ -19,7 +19,7 @@ int main()
 	///// light start /////
 	light_start(LIGHT);
 	shut_down_in(119.5);
-	
+	start();
 	///// go to caldera /////
 	if (button == A)
 	create_drive_direct(500, 500);
@@ -34,16 +34,16 @@ int main()
 	motor(HELPER_MOTOR, HELPER_MOTOR_UP_SPEED);
 	motor(STRING, STRING_UP);
 	set_servo_position(SWEEPER, SWEEPER_ALL);
-	set_servo_position(LID, LID_ALL);
-	msleep(300);
+	//set_servo_position(LID, LID_ALL);
+	//msleep(100);
 	set_servo_position(LID, LID_MID);
-	msleep(100);
+	msleep(200);
 	
 	///// stop the create /////
 	if (button == A)
-		while ( get_create_distance() < (30 * 25.4) );
+		while ( get_create_distance() < (31 * 25.4) );
 	else if ( (button == B) || (button == S) )
-		while ( get_create_distance() < (30 * 25.4) );
+		while ( get_create_distance() < (31 * 25.4) );
 	else if (button == C)
 		while ( get_create_distance() < (25 * 25.4) ); // much shorter
 	
@@ -94,8 +94,16 @@ int main()
 	create_stop();
 	set_servo_position(SWEEPER, SWEEPER_ALL_IN);
 	msleep(1000);
+	
+	
+	//wait_till(39.0);
+	//servo_set(LID, LID_MID, .5);
+	//servo_set(LID, LID_DOWN, 2);
+	
+	
 	disable_servos();
 	thread_destroy(rollIgus);
 	ao();
+	
 	
 }
