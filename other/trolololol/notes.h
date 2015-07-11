@@ -1,6 +1,6 @@
 // Created on Mon July 6 2015
 
-
+/*
 /* define the tempo marks
 	E = eighth
 	Q = quarter
@@ -13,7 +13,6 @@
 	Notes:
 		.5 sec = 32
 		.25 sec = 16
-*/
 
 #define W 64
 #define H (W / 2)
@@ -35,7 +34,6 @@
 		62 is a D
 		64 is an E
 		65 is an F
-*/
 
 #define G1 55
 #define GS1 56
@@ -63,4 +61,4 @@
 #define F2 77
 #define FS2 78
 
- 
+ */

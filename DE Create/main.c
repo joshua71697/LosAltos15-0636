@@ -107,3 +107,7 @@ int main()
 	
 	
 }
+ void sing()
+{
+	initsong();
+}
