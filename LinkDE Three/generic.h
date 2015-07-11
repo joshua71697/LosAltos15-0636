@@ -13,7 +13,7 @@
 #define CLAWL 1//claw lift port
 #define ARM 3// arm port
 
-#define CLAW_CLOSE 670
+#define CLAW_CLOSE 635//670
 #define CLAW_OPEN 1550
 #define CLAW_UP 1100
 #define CLAW_DOWN 525

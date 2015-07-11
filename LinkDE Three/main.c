@@ -66,7 +66,7 @@ void get_gold_proto(){
 void score_gold(){
 	servo_set(CLAWL,CLAW_UP,0.5);//servo_set(CLAWL,CLAW_DOWN+250,1);
 	//msleep(1000);
-	servo_set(CLAWOC,CLAW_OPEN,1);//slow
+	servo_set(CLAWOC,CLAW_OPEN-200,1);//slow
 	msleep(200);
 	set_servo_position(CLAWL,CLAW_UP);
 	msleep(200);
@@ -87,7 +87,7 @@ void arms_down_slow_two(){
 
 void arms_down_slow_three(){
 	set_servo_position(CLAWOC,CLAW_CLOSE);
-	servo_set(CLAWL,CLAW_DOWN-25,0.5);
+	servo_set(CLAWL,CLAW_DOWN+50,0.5);
 	servo_set(ARM,ARM_MID+100,0.5);//used to be ARM_BOTGUY
 }
 
@@ -96,7 +96,7 @@ void test(){
 }
 
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int routine(){
 	/*===Start===*/
 	servo_setup();
@@ -116,7 +116,7 @@ int routine(){
 	get_gold_proto();
 	
 	/*===Score Gold===*/
-	etbackward(17);
+	etbackward(18);
 	right(10,0,100);
 	score_gold();
 	left(10,0,100);
@@ -132,12 +132,12 @@ int routine(){
 	thread_start(going);
 	
 	int store_et_distance = avg_etdouble();//store for later
-	etbackward(63);
+	etbackward(64);
 	set_servo_position(ARM,ARM_UP-150);
 
 	set_servo_position(CLAWOC,CLAW_OPEN-475);
 	msleep(500);
-	etforward_sens_pass(6,store_et_distance);
+	etforward_sens_pass(8,store_et_distance);
 	set_servo_position(ARM,ARM_UP+100);
 	
 	int i = 0;
@@ -158,7 +158,7 @@ int routine(){
 	//Part Two
 	set_servo_position(ARM,ARM_MID+100);
 	set_servo_position(CLAWL,CLAW_DOWN);
-	set_servo_position(CLAWOC,CLAW_OPEN-350);
+	set_servo_position(CLAWOC,CLAW_OPEN-375);//350
 	msleep(200);
 	etforward(40);//etforward_sens_pass(40,store_et_distance);
 	set_servo_position(ARM,ARM_UP);
@@ -184,34 +184,32 @@ int routine(){
 	etbackward_sens_touch(4);//back up into position
 	squareup(-50,1000);
 	
-	forward(18,100);
-	right(190,0,100); // turn around
+	forward(14,100);
+	right(215,0,100); // turn around
 	msleep(500);
 	//etforward(15);
-	forward(15,100);
+	forward(11,100);
 	squareup(60,1000);//drive up to the pipe
 	msleep(500);
 	back(0.5,100);//back up from pipe
 	
 	/*===Gold Two===*/
-	get_gold();
+	get_gold_proto();
 	back(25,100);
 	servo_set(CLAWL,CLAW_DOWN,0.5);
 	right(90,0,100);
 	right(45,0,100);
 	msleep(500);
 	left(40,0,100);
-
-	//forward(5,100);
-	//forward(5,100);
-	//left(150,0,100);
-	//msleep(500);
-	//right(100,0,100);//sweep tribbles out of the way
 	
 	thread going_home = thread_create(arms_down_slow_three);
 	thread_start(going_home);
-	etforward(74);
-	etbackward(2);
+	etforward(30);
+	int store_et_distance_two = avg_etdouble();
+	set_servo_position(CLAWL,CLAW_DOWN+100);
+	etforward_sens_pass(45,store_et_distance_two);
+	//etforward(74);
+	etbackward(1);
 	set_servo_position(ARM,ARM_UP);
 	score_gold();
 	
@@ -219,7 +217,7 @@ int routine(){
 	disable_servos();
 	ao();
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void botguy_first(){
 	/*===Start===*/
 	servo_setup();
@@ -233,7 +231,7 @@ void botguy_first(){
 	servo_drive_pos();
 	squareup_arc(-100,-50,1000);
 	
-	etforward(14);//halfway across
+	etforward(13);//halfway across - assign spacing //old=14
 	
 	right(90,0,80);
 	squareup(50,2000);
@@ -244,12 +242,12 @@ void botguy_first(){
 	thread_start(going);
 	
 	int store_et_distance = avg_etdouble();//store for later
-	etbackward(64);
+	etbackward(65);
 	set_servo_position(ARM,ARM_UP-150);
 
-	set_servo_position(CLAWOC,CLAW_OPEN-550);//-475
+	set_servo_position(CLAWOC,CLAW_OPEN-600);//-550//-475
 	msleep(500);
-	etforward_sens_pass(6,store_et_distance);
+	etforward_sens_pass(9,store_et_distance);
 	set_servo_position(ARM,ARM_UP+100);
 	
 	int i = 0;
@@ -257,7 +255,7 @@ void botguy_first(){
 		etforward(8+i);
 		etbackward(8+i);
 	}
-	etbackward(7);//back away from botguy
+	etbackward(7);//back away from mesa
 	
 	/*===Score Botguy===*/ //A Move in two parts
 	
@@ -270,7 +268,7 @@ void botguy_first(){
 	//Part Two
 	set_servo_position(ARM,ARM_MID+100);
 	set_servo_position(CLAWL,CLAW_DOWN);
-	set_servo_position(CLAWOC,CLAW_OPEN-300);
+	set_servo_position(CLAWOC,CLAW_OPEN-375);//350
 	msleep(200);
 	etforward(50);//etforward_sens_pass(40,store_et_distance);
 	
@@ -279,10 +277,11 @@ void botguy_first(){
 	
 
 	//etforward(12);
-	//etbackward(2);
+	etbackward(3);
 	servo_drive_pos();
 	
-	left(94,0,100);
+	
+	left(98,0,100);
 	forward(5,100);
 	etforward(18);
 	
@@ -294,8 +293,11 @@ void botguy_first(){
 	score_gold();
 	left(10,0,100);
 	
+	/*===Tail===*/
+	disable_servos();
+	ao();
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main(){
 	set_a_button_text("MAIN");
 	set_b_button_text("HALF");
