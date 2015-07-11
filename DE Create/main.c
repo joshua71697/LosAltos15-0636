@@ -78,7 +78,7 @@ int main()
 		sweep(5);
 		sweep(5);
 		servo_set(LID, LID_DOWN, 2);
-		wideShake();
+		//wideShake();
 		sweep(5);
 		
 	}	
@@ -92,7 +92,7 @@ int main()
 	
 	///// end and hope /////
 	create_stop();
-	set_servo_position(SWEEPER, SWEEPER_ALL_IN);
+	servo_set(SWEEPER, SWEEPER_ALL_IN, 2);
 	msleep(1000);
 	
 	
