@@ -73,6 +73,16 @@ void score_gold(){
 	servo_set(CLAWOC,CLAW_CLOSE,1);//set_servo_position(CLAWOC,CLAW_CLOSE);
 	//msleep(500);
 }
+void score_gold_proto(){
+	servo_set(CLAWL,CLAW_UP,1.5);//servo_set(CLAWL,CLAW_DOWN+250,1);
+	//msleep(1000);
+	servo_set(CLAWOC,CLAW_OPEN-200,1);//slow
+	msleep(200);
+	set_servo_position(CLAWL,CLAW_UP);
+	msleep(200);
+	servo_set(CLAWOC,CLAW_CLOSE,1);//set_servo_position(CLAWOC,CLAW_CLOSE);
+	//msleep(500);
+}
 void arms_down_slow(){
 	msleep(1500);
 	servo_set(CLAWL,CLAW_DOWN,1);
@@ -211,7 +221,7 @@ int routine(){
 	//etforward(74);
 	etbackward(1);
 	set_servo_position(ARM,ARM_UP);
-	score_gold();
+	score_gold_proto();
 	
 	/*===Tail===*/
 	disable_servos();
@@ -231,9 +241,9 @@ void botguy_first(){
 	servo_drive_pos();
 	squareup_arc(-100,-50,1000);
 	
-	etforward(13);//halfway across - assign spacing //old=14
+	etforward(12.5);//halfway across - assign spacing //old=14
 	
-	right(90,0,80);
+	right(92,0,80);
 	squareup(50,2000);
 	msleep(500);
 	
@@ -270,8 +280,14 @@ void botguy_first(){
 	set_servo_position(CLAWL,CLAW_DOWN);
 	set_servo_position(CLAWOC,CLAW_OPEN-375);//350
 	msleep(200);
-	etforward(50);//etforward_sens_pass(40,store_et_distance);
+	etforward(20);//etforward(50);//etforward_sens_pass(40,store_et_distance);
 	
+	//Part Three
+	set_servo_position(ARM,ARM_MID+100);
+	set_servo_position(CLAWL,CLAW_DOWN);
+	set_servo_position(CLAWOC,CLAW_OPEN-300);//350
+	msleep(200);
+	etforward(30);//etforward_sens_pass(40,store_et_distance);
 	
 	//Gold One
 	
@@ -283,7 +299,7 @@ void botguy_first(){
 	
 	left(98,0,100);
 	forward(5,100);
-	etforward(18);
+	etforward(17);
 	
 	get_gold_proto();
 	
@@ -320,7 +336,8 @@ int main(){
 		else if(c_button()){
 			reset_buttons();
 			half = 0;
-			printf("Running Botguy First");
+			printf("Running Botguy First\n");
+			printf("PIN?\n");
 			botguy_first();
 			break;
 		}
